@@ -1,0 +1,8 @@
+const createResourceController = (Model, populate = '') => ({
+  create: async (req, res) => { try { const data = await Model.create(req.body); res.status(201).json({ success: true, data }) } catch (e) { res.status(400).json({ success: false, message: e.message }) } },
+  list: async (req, res) => { try { const filter = req.query.status ? { status: req.query.status } : {}; const query = Model.find(filter).sort({ createdAt: -1 }); if (populate) query.populate(populate); const data = await query; res.json({ success: true, count: data.length, data }) } catch (e) { res.status(500).json({ success: false, message: e.message }) } },
+  get: async (req, res) => { try { const data = await Model.findById(req.params.id); if (!data) return res.status(404).json({ success: false, message: 'Record not found' }); res.json({ success: true, data }) } catch (e) { res.status(400).json({ success: false, message: e.message }) } },
+  update: async (req, res) => { try { const data = await Model.findByIdAndUpdate(req.params.id, req.body, { new: true, runValidators: true }); if (!data) return res.status(404).json({ success: false, message: 'Record not found' }); res.json({ success: true, data }) } catch (e) { res.status(400).json({ success: false, message: e.message }) } },
+  remove: async (req, res) => { try { const data = await Model.findByIdAndDelete(req.params.id); if (!data) return res.status(404).json({ success: false, message: 'Record not found' }); res.json({ success: true, message: 'Record deleted' }) } catch (e) { res.status(400).json({ success: false, message: e.message }) } },
+})
+module.exports = createResourceController

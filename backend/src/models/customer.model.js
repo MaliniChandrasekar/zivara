@@ -29,6 +29,18 @@ const customerSchema = new mongoose.Schema(
       type: String,
       trim: true,
     },
+    measurements: {
+      bust: Number,
+      waist: Number,
+      hip: Number,
+      shoulder: Number,
+      length: Number,
+      sleeve: Number,
+      unit: { type: String, default: "in" },
+    },
+    tags: [String],
+    totalOrders: { type: Number, default: 0 },
+    totalSpent: { type: Number, default: 0 },
   },
   {
     timestamps: true,

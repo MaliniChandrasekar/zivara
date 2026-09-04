@@ -1,122 +1,52 @@
-import { useState } from 'react'
-import heroImg from './assets/hero.png'
-import reactLogo from './assets/react.svg'
-import viteLogo from './assets/vite.svg'
+import { useEffect, useMemo, useRef, useState } from 'react'
 import './App.css'
 
-function App() {
-  const [count, setCount] = useState(0)
+const services=[['✦','Designer Blouses','Bridal, aari, maggam and contemporary cuts made to your measurements.','From ₹1,499'],['◒','Perfect Alterations','Precision fitting for sarees, kurtis, gowns and western wear.','From ₹249'],['♢','Bridal Couture','A complete design-to-fitting journey for your most important day.','By consultation'],['⌁','Custom Dresses','Bring a reference or let our designers create something only for you.','From ₹1,999']]
+const designs=[['The Mayura Blouse','Aari Collection','Bestseller'],['Saffron Drape','Festive Edit','New'],['Noor Bridal Set','Bridal Couture','Signature']]
+const seedOrders=[{id:'ZV-1048',customer:'Priya R',item:'Bridal blouse',date:'Sep 05',amount:'₹8,500',status:'Stitching'},{id:'ZV-1047',customer:'Nandhini S',item:'Churidar set',date:'Sep 03',amount:'₹3,200',status:'Trial'},{id:'ZV-1046',customer:'Meena K',item:'Saree fall & pico',date:'Today',amount:'₹650',status:'Ready'},{id:'ZV-1045',customer:'Aishwarya P',item:'Designer gown',date:'Sep 08',amount:'₹5,900',status:'Cutting'}]
+const nav=['Overview','Orders','Customers','Enquiries','Appointments','Designs','Services']
 
-  return (
-    <>
-      <section id="center">
-        <div className="hero">
-          <img src={heroImg} className="base" width="170" height="179" alt="" />
-          <img src={reactLogo} className="framework" alt="React logo" />
-          <img src={viteLogo} className="vite" alt="Vite logo" />
-        </div>
-        <div>
-          <h1>Get started</h1>
-          <p>
-            Edit <code>src/App.jsx</code> and save to test <code>HMR</code>
-          </p>
-        </div>
-        <button
-          type="button"
-          className="counter"
-          onClick={() => setCount((count) => count + 1)}
-        >
-          Count is {count}
-        </button>
-      </section>
+function Logo({light=false}){return <div className={'logo '+(light?'light':'')}><span>Z</span><div><b>ZIVARA</b><small>DESIGN STUDIO</small></div></div>}
 
-      <div className="ticks"></div>
-
-      <section id="next-steps">
-        <div id="docs">
-          <svg className="icon" role="presentation" aria-hidden="true">
-            <use href="/icons.svg#documentation-icon"></use>
-          </svg>
-          <h2>Documentation</h2>
-          <p>Your questions, answered</p>
-          <ul>
-            <li>
-              <a href="https://vite.dev/" target="_blank">
-                <img className="logo" src={viteLogo} alt="" />
-                Explore Vite
-              </a>
-            </li>
-            <li>
-              <a href="https://react.dev/" target="_blank">
-                <img className="button-icon" src={reactLogo} alt="" />
-                Learn more
-              </a>
-            </li>
-          </ul>
-        </div>
-        <div id="social">
-          <svg className="icon" role="presentation" aria-hidden="true">
-            <use href="/icons.svg#social-icon"></use>
-          </svg>
-          <h2>Connect with us</h2>
-          <p>Join the Vite community</p>
-          <ul>
-            <li>
-              <a href="https://github.com/vitejs/vite" target="_blank">
-                <svg
-                  className="button-icon"
-                  role="presentation"
-                  aria-hidden="true"
-                >
-                  <use href="/icons.svg#github-icon"></use>
-                </svg>
-                GitHub
-              </a>
-            </li>
-            <li>
-              <a href="https://chat.vite.dev/" target="_blank">
-                <svg
-                  className="button-icon"
-                  role="presentation"
-                  aria-hidden="true"
-                >
-                  <use href="/icons.svg#discord-icon"></use>
-                </svg>
-                Discord
-              </a>
-            </li>
-            <li>
-              <a href="https://x.com/vite_js" target="_blank">
-                <svg
-                  className="button-icon"
-                  role="presentation"
-                  aria-hidden="true"
-                >
-                  <use href="/icons.svg#x-icon"></use>
-                </svg>
-                X.com
-              </a>
-            </li>
-            <li>
-              <a href="https://bsky.app/profile/vite.dev" target="_blank">
-                <svg
-                  className="button-icon"
-                  role="presentation"
-                  aria-hidden="true"
-                >
-                  <use href="/icons.svg#bluesky-icon"></use>
-                </svg>
-                Bluesky
-              </a>
-            </li>
-          </ul>
-        </div>
-      </section>
-
-      <div className="ticks"></div>
-      <section id="spacer"></section>
-    </>
-  )
+function Store(){
+ const [form,setForm]=useState({name:'',phone:'',service:'Designer Blouse',preferredDate:'',message:''}),[sent,setSent]=useState(false),[busy,setBusy]=useState(false),[menu,setMenu]=useState(false),[tilt,setTilt]=useState({x:0,y:0}),[loading,setLoading]=useState(()=>!sessionStorage.getItem('zivara-intro-seen')),[theme,setTheme]=useState(()=>localStorage.getItem('zivara-theme')||'ivory'),cursorRef=useRef(null),progressRef=useRef(null),spotRef=useRef(null)
+ useEffect(()=>{const items=document.querySelectorAll('.section,.collection,.testimonial,.contact,.atelier-story,.promise-strip');const observer=new IntersectionObserver(entries=>entries.forEach(e=>e.isIntersecting&&e.target.classList.add('in-view')),{threshold:.12});items.forEach(x=>observer.observe(x));return()=>observer.disconnect()},[])
+ useEffect(()=>{if(!loading)return;const timer=setTimeout(()=>{setLoading(false);sessionStorage.setItem('zivara-intro-seen','1')},2450);return()=>clearTimeout(timer)},[loading])
+ useEffect(()=>{const scroll=()=>{if(progressRef.current)progressRef.current.style.transform=`scaleX(${scrollY/(document.documentElement.scrollHeight-innerHeight)||0})`};addEventListener('scroll',scroll,{passive:true});return()=>removeEventListener('scroll',scroll)},[])
+ const submit=async e=>{e.preventDefault();setBusy(true);try{const r=await fetch('/api/enquiries',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(form)});if(!r.ok)throw Error()}catch{localStorage.setItem('zivara-last-enquiry',JSON.stringify({...form,createdAt:new Date()}))}setBusy(false);setSent(true)}
+ const moveCursor=e=>{const el=cursorRef.current;if(el){el.style.transform=`translate3d(${e.clientX}px,${e.clientY}px,0)`;el.classList.toggle('active',Boolean(e.target.closest('a,button,.design-art,.service-grid article')))}if(spotRef.current)spotRef.current.style.transform=`translate3d(${e.clientX-220}px,${e.clientY-220}px,0)`}
+ const switchTheme=()=>{const next=theme==='ivory'?'noir':'ivory';setTheme(next);localStorage.setItem('zivara-theme',next)}
+ return <div className={`store theme-${theme} ${loading?'is-loading':''}`} onMouseMove={moveCursor}>
+  <div className="scroll-progress" ref={progressRef}/><div className="ambient-spot" ref={spotRef}/>
+  {loading&&<div className="premium-loader"><div className="loader-thread"><i/><b/></div><div className="loader-brand"><span>Z</span><strong>ZIVARA</strong><small>DESIGN STUDIO</small></div><div className="loader-progress"><i/></div><p>CRAFTING YOUR EXPERIENCE</p></div>}
+  <div className="luxury-cursor" ref={cursorRef}><span/></div>
+  <div className="announcement">Complimentary design consultation on orders above ₹5,000 <span>Book now →</span></div>
+  <header className="site-header wrap"><Logo/><button className="menu" onClick={()=>setMenu(!menu)}>☰</button><nav className={menu?'open':''}><a href="#services">Services</a><a href="#designs">Collections</a><a href="#process">Our process</a><a href="#contact">Contact</a></nav><div className="header-actions"><button className="theme-switch" onClick={switchTheme} aria-label="Change theme"><span>{theme==='ivory'?'◐':'☼'}</span><small>{theme==='ivory'?'Noir':'Ivory'}</small></button><a className="pill dark" href="#contact">Book a fitting</a></div></header>
+  <main>
+   <section className="hero" onMouseMove={e=>{const r=e.currentTarget.getBoundingClientRect();setTilt({x:(e.clientX-r.left-r.width/2)/r.width,y:(e.clientY-r.top-r.height/2)/r.height})}} onMouseLeave={()=>setTilt({x:0,y:0})}><div className="grain"/><div className="orb one"/><div className="orb two"/><div className="wrap hero-grid"><div className="hero-copy"><div className="eyebrow">— CRAFTED FOR YOUR STORY</div><h1>Made to fit.<br/><em>Designed to belong.</em></h1><p>Thoughtful tailoring, exquisite finishing and silhouettes made around you—not a standard size chart.</p><div className="hero-actions"><a href="#contact" className="pill gold">Start your design</a><a href="#designs">Explore collection ↗</a></div><div className="proof"><div><b>12+</b><span>Years of craft</span></div><i/><div><b>4.9</b><span>Customer rating</span></div><i/><div><b>2,400+</b><span>Happy fits</span></div></div></div><div className="hero-art" style={{'--rx':`${-tilt.y*10}deg`,'--ry':`${tilt.x*12}deg`}}><div className="ring"/><div className="arch"><div className="garment"><i/><b/></div><span className="note n1">✦ HAND FINISHED</span><span className="note n2">01 / SIGNATURE</span></div></div></div></section>
+   <section id="services" className="section wrap"><Heading eyebrow="WHAT WE CREATE" title="Tailoring, elevated." text="From an everyday alteration to once-in-a-lifetime couture, every piece receives the same attention."/><div className="service-grid">{services.map((s,i)=><article className={i===2?'featured':''} key={s[1]}><div><span>{s[0]}</span><small>0{i+1}</small></div><h3>{s[1]}</h3><p>{s[2]}</p><footer><b>{s[3]}</b><span>Explore →</span></footer></article>)}</div></section>
+   <section className="atelier-story"><div className="atelier-visual"><div className="atelier-frame"><div className="artisan"><span/><i/><b/></div><small>THE HANDS BEHIND<br/>EVERY DETAIL</small></div><div className="seal"><span>Z</span><small>EST. 2014</small></div></div><div className="atelier-copy"><div className="eyebrow">INSIDE OUR ATELIER</div><h2>Where patience<br/>becomes <em>beauty.</em></h2><p>Every Zivara piece passes through the hands of skilled artisans—from the first chalk line to the final hand-finished stitch.</p><blockquote>“We don't simply stitch a garment. We study how you move, how you celebrate and how you want to feel.”</blockquote><div className="signature"><span>Anitha</span><small>FOUNDER &amp; HEAD DESIGNER</small></div><a href="#contact">Meet your designer <b>↗</b></a></div></section>
+   <section id="designs" className="collection"><div className="collection-marquee"><div>TIMELESS CRAFT ✦ MODERN SILHOUETTES ✦ MADE FOR YOU ✦ TIMELESS CRAFT ✦ MODERN SILHOUETTES ✦ MADE FOR YOU ✦</div></div><div className="wrap"><Heading eyebrow="THE ZIVARA EDIT" title="Designed to be remembered."/><div className="design-grid">{designs.map((d,i)=><article key={d[0]} style={{'--stagger':`${i*130}ms`}}><div className={'design-art art'+i}><span>{d[2]}</span><div className="model"><i/><b/></div><div className="design-number">0{i+1}</div></div><small>{d[1]}</small><div><h3>{d[0]}</h3><button>↗</button></div></article>)}</div></div></section>
+   <section className="material-section section"><div className="wrap"><div className="material-head"><div><div className="eyebrow">A WORLD OF TEXTURE</div><h2>Begin with the<br/><em>perfect canvas.</em></h2></div><p>Curated fabrics selected for their drape, comfort and character. Touch and compare them during your private consultation.</p></div><div className="swatch-grid">{[['K','Kanchipuram Silk','Heritage · Lustrous','silk'],['V','Velvet','Evening · Rich','velvet'],['O','Organza','Airy · Sculptural','organza'],['L','Pure Linen','Natural · Timeless','linen']].map((x,i)=><article key={x[1]}><div className={'swatch '+x[3]}><span>{x[0]}</span><i>0{i+1}</i></div><h3>{x[1]}</h3><p>{x[2]}</p></article>)}</div><div className="material-note"><span>✦</span> Fabric sourcing available for custom and bridal orders <a href="#contact">Ask our designer →</a></div></div></section>
+   <section id="process" className="section wrap process"><div><div className="eyebrow">HOW IT WORKS</div><h2>Your perfect fit,<br/><em>without the fuss.</em></h2><p>Clear updates from consultation to collection. You always know what happens next.</p><a href="#contact" className="pill dark">Book consultation</a></div><div className="steps">{[['Share your idea','Send a reference or tell us the occasion.'],['Measure & design','Precise measurements and fabric guidance.'],['Trial & refine','A dedicated fitting ensures comfort and balance.'],['Collect & shine','Quality-checked and ready on the promised date.']].map((x,i)=><article key={x[0]}><span>0{i+1}</span><div><h3>{x[0]}</h3><p>{x[1]}</p></div></article>)}</div></section>
+   <section className="testimonial"><div className="wrap"><span>“</span><blockquote>The fitting was flawless and every update came on time. They understood my idea and made it even better.</blockquote><b>PR</b><small>Priya Ramesh · Bridal customer · ★★★★★</small></div></section>
+   <section className="promise-strip"><div className="wrap">{[['01','Private consultation'],['02','Personal measurements'],['03','Transparent timelines'],['04','One perfect fit']].map(x=><div key={x[0]}><small>{x[0]}</small><span>{x[1]}</span></div>)}</div></section>
+   <section id="contact" className="contact"><div className="wrap contact-grid"><div className="contact-copy"><div className="eyebrow">LET'S CREATE TOGETHER</div><h2>Tell us what you're dreaming of.</h2><p>Share a few details. Our designer will call within one business day.</p>{[['⌖','Visit the studio','NO. 49, Solai Pudhur, Bypass Road, Thoothukudi 628101'],['☎','Call or WhatsApp','+91 98765 43210'],['◷','Studio hours','Mon–Sat · 10:00 AM–8:00 PM']].map(x=><div className="detail" key={x[1]}><span>{x[0]}</span><p><b>{x[1]}</b>{x[2]}</p></div>)}</div><form onSubmit={submit}>{sent?<div className="success"><span>✓</span><h3>Thank you, {form.name}!</h3><p>Your enquiry is saved. Our designer will contact you shortly.</p><button type="button" className="pill dark" onClick={()=>setSent(false)}>Send another</button></div>:<><div className="form-head"><div><small>DESIGN CONSULTATION</small><h3>Request a callback</h3></div><span>✦</span></div><div className="form-row"><Field label="Your name"><input required value={form.name} onChange={e=>setForm({...form,name:e.target.value})}/></Field><Field label="Phone number"><input required pattern="[0-9 +()-]{10,}" value={form.phone} onChange={e=>setForm({...form,phone:e.target.value})}/></Field></div><Field label="I'm interested in"><select value={form.service} onChange={e=>setForm({...form,service:e.target.value})}><option>Designer Blouse</option><option>Bridal Couture</option><option>Custom Dress</option><option>Alteration</option></select></Field><Field label="Preferred date"><input type="date" value={form.preferredDate} onChange={e=>setForm({...form,preferredDate:e.target.value})}/></Field><Field label="Tell us a little more"><textarea rows="3" value={form.message} onChange={e=>setForm({...form,message:e.target.value})}/></Field><button disabled={busy} className="pill gold submit">{busy?'Saving…':'Request consultation →'}</button><small className="privacy">Your details stay private with Zivara.</small></>}</form></div></section>
+  </main><footer className="site-footer"><div className="wrap footer-grid"><Logo light/><p>Beautifully made. Honestly fitted.<br/>Made in Thoothukudi.</p><div><a href="#services">Services</a><a href="#designs">Collections</a><a href="#contact">Contact</a></div><div>Instagram · Facebook · WhatsApp</div></div><div className="wrap copyright">© 2026 Zivara Design Studio <span>Privacy · Terms</span></div></footer><nav className="mobile-dock"><a href="#services"><span>✦</span>Services</a><a href="#designs"><span>♢</span>Designs</a><a href="#contact" className="dock-main"><span>＋</span>Book</a><a href="tel:+919876543210"><span>☎</span>Call</a><a href="https://wa.me/919876543210"><span>◉</span>Chat</a></nav><a className="whatsapp" href="https://wa.me/919876543210">◉</a>
+ </div>
 }
+function Heading({eyebrow,title,text}){return <div className="section-head"><div><div className="eyebrow">{eyebrow}</div><h2>{title}</h2></div>{text&&<p>{text}</p>}</div>}
+function Field({label,children}){return <label>{label}{children}</label>}
 
+function Admin({logout}){
+ const [active,setActive]=useState('Overview'),[orders,setOrders]=useState(seedOrders),[q,setQ]=useState(''),[side,setSide]=useState(false),[dark,setDark]=useState(()=>localStorage.getItem('zivara-admin-theme')==='dark')
+ const filtered=useMemo(()=>orders.filter(o=>JSON.stringify(o).toLowerCase().includes(q.toLowerCase())),[orders,q]);const advance=id=>setOrders(x=>x.map(o=>o.id===id?{...o,status:({Cutting:'Stitching',Stitching:'Trial',Trial:'Ready',Ready:'Delivered'})[o.status]||'Delivered'}:o))
+ return <div className={'admin '+(dark?'admin-dark':'')}><aside className={side?'show':''}><Logo light/><button className="side-close" onClick={()=>setSide(false)}>×</button><div className="workspace"><span>ZS</span><div><b>Zivara Studio</b><small>Business workspace</small></div></div><small>WORKSPACE</small><nav>{nav.map((n,i)=><button className={active===n?'active':''} onClick={()=>{setActive(n);setSide(false)}} key={n}><span>{['⌂','◇','♙','✉','◷','✦','▦'][i]}</span>{n}{n==='Enquiries'&&<b>4</b>}</button>)}</nav><small>BUSINESS</small><nav><button>▤ Payments</button><button>⚙ Settings</button></nav><div className="profile"><span>AK</span><div><b>Anitha Kumar</b><small>Administrator</small></div></div></aside><div className="admin-main"><header><button className="side-open" onClick={()=>setSide(true)}>☰</button><div><h1>{active}</h1><p>Tuesday, 1 September 2026</p></div><div className="admin-actions"><label>⌕ <input placeholder="Search anything..." value={q} onChange={e=>setQ(e.target.value)}/></label><button className="admin-theme" onClick={()=>{setDark(!dark);localStorage.setItem('zivara-admin-theme',!dark?'dark':'light')}}>{dark?'☼':'◐'}</button><a href="/">View store ↗</a><button onClick={logout}>Log out</button></div></header><main>{active==='Overview'?<Overview orders={filtered} advance={advance} go={setActive}/>:<Manager name={active} orders={filtered} advance={advance}/>}</main><nav className="admin-mobile-nav">{nav.slice(0,5).map((n,i)=><button className={active===n?'active':''} onClick={()=>setActive(n)} key={n}><span>{['⌂','◇','♙','✉','◷'][i]}</span>{n==='Overview'?'Home':n}</button>)}</nav></div></div>
+}
+function Overview({orders,advance,go}){return <><section className="welcome"><small>GOOD MORNING, ANITHA</small><h2>Here's what needs your<br/>attention today.</h2><p>3 deliveries due and 4 new enquiries waiting.</p><i>✦</i><button>View today's schedule →</button></section><section className="metrics">{[['₹48,650','Revenue this month','+12.4%'],['28','Active orders','6 due this week'],['342','Total customers','+18 this month'],['4','New enquiries','Needs response']].map((m,i)=><article key={m[1]}><span>{['↗','◇','♙','✉'][i]}</span><small>{m[1]}</small><strong>{m[0]}</strong><em>{m[2]}</em></article>)}</section><div className="dash-grid"><Panel title="Recent orders" sub="Track production and delivery" action={()=>go('Orders')}><OrderTable orders={orders} advance={advance}/></Panel><Panel title="Today's schedule" sub="September 01">{[['10:30','Measurement','Sangeetha R'],['12:00','Trial fitting','Nandhini S'],['03:30','Consultation','Lavanya M'],['06:00','Collection','Meena K']].map(x=><div className="schedule" key={x[0]}><b>{x[0]}</b><i/><div><strong>{x[1]}</strong><small>{x[2]}</small></div><span>⋮</span></div>)}</Panel></div><div className="dash-grid lower"><Panel title="Order progress" sub="Current production pipeline">{[['New orders',8,42],['Cutting',5,30],['Stitching',9,63],['Trial',4,24],['Ready',6,38]].map((x,i)=><div className="bar" key={x[0]}><span>{x[0]}</span><div><i style={{width:x[2]+'%'}} className={'b'+i}/></div><b>{x[1]}</b></div>)}</Panel><Panel title="Quick actions" sub="Common studio tasks"><div className="quick">{[['＋','New order'],['♙','Add customer'],['◷','Book fitting'],['✉','Send update']].map(x=><button key={x[1]}><span>{x[0]}</span>{x[1]}</button>)}</div></Panel></div></>}
+function Panel({title,sub,children,action}){return <section className="panel"><div className="panel-head"><div><h3>{title}</h3><p>{sub}</p></div>{action&&<button onClick={action}>View all →</button>}</div>{children}</section>}
+function OrderTable({orders,advance}){return <div className="table-wrap"><table><thead><tr><th>ORDER</th><th>CUSTOMER</th><th>ITEM</th><th>DUE</th><th>AMOUNT</th><th>STATUS</th></tr></thead><tbody>{orders.map(o=><tr key={o.id}><td><b>{o.id}</b></td><td><span className="avatar">{o.customer[0]}</span>{o.customer}</td><td>{o.item}</td><td>{o.date}</td><td><b>{o.amount}</b></td><td><button className={'status '+o.status.toLowerCase()} onClick={()=>advance(o.id)}>{o.status}</button></td></tr>)}</tbody></table></div>}
+function Manager({name,orders,advance}){return <section className="panel manager"><div className="panel-head"><div><h3>{name} management</h3><p>Search, update and manage all records</p></div><button className="primary">＋ Add new</button></div>{name==='Orders'?<OrderTable orders={orders} advance={advance}/>:<div className="empty"><span>✦</span><h3>{name} workspace is ready</h3><p>Add, search, edit and track every {name.toLowerCase()} record here.</p><button className="primary">＋ Create record</button></div>}</section>}
+function Login({onLogin}){const [form,setForm]=useState({email:'',password:''}),[error,setError]=useState(''),[busy,setBusy]=useState(false),[show,setShow]=useState(false);const submit=async e=>{e.preventDefault();setBusy(true);setError('');try{const r=await fetch('/api/auth/login',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(form)}),body=await r.json();if(!r.ok)throw Error(body.message);sessionStorage.setItem('zivara-admin-token',body.token);onLogin(body.token)}catch(e){setError(e.message||'Unable to sign in')}finally{setBusy(false)}};return <main className="login-page"><div className="login-visual"><Logo light/><div className="login-quote"><div className="eyebrow">THE STUDIO DESK</div><h1>Every beautiful piece<br/>begins with <em>order.</em></h1><p>Customers, measurements and craftsmanship—thoughtfully managed in one place.</p></div><span>Private access · Zivara Design Studio</span></div><section className="login-card"><a href="/" className="back-store">← Back to store</a><div className="login-inner"><span className="login-mark">Z</span><small>SECURE ADMIN PORTAL</small><h2>Welcome back</h2><p>Sign in to manage your studio.</p><form onSubmit={submit}><label>Email address<input type="email" required autoComplete="username" placeholder="admin@zivara.in" value={form.email} onChange={e=>setForm({...form,email:e.target.value})}/></label><label>Password<div className="password"><input type={show?'text':'password'} required autoComplete="current-password" value={form.password} onChange={e=>setForm({...form,password:e.target.value})}/><button type="button" onClick={()=>setShow(!show)}>{show?'Hide':'Show'}</button></div></label>{error&&<div className="login-error">⚠ {error}</div>}<button className="login-submit" disabled={busy}>{busy?'Signing in…':'Sign in securely →'}</button></form><div className="secure-note">◇ Protected with signed, expiring sessions</div></div></section></main>}
+function App(){const isAdmin=location.pathname.replace(/\/$/,'')==='/admin';const [token,setToken]=useState(()=>sessionStorage.getItem('zivara-admin-token')),[checking,setChecking]=useState(()=>Boolean(isAdmin&&token));useEffect(()=>{if(!isAdmin||!token)return;fetch('/api/auth/me',{headers:{Authorization:`Bearer ${token}`}}).then(r=>{if(!r.ok)throw Error()}).catch(()=>{sessionStorage.removeItem('zivara-admin-token');setToken(null)}).finally(()=>setChecking(false))},[isAdmin,token]);if(!isAdmin)return <Store/>;if(checking)return <div className="auth-loading"><Logo/><span/></div>;return token?<Admin logout={()=>{sessionStorage.removeItem('zivara-admin-token');setToken(null)}}/>:<Login onLogin={setToken}/>}
 export default App
