@@ -1,0 +1,566 @@
+[
+  {
+    "id": "aari-work-01",
+    "name": "Aari work Design 01",
+    "category": "Aari work",
+    "imageUrl": "/api/design-assets/001-aari-work-01.webp"
+  },
+  {
+    "id": "aari-work-02",
+    "name": "Aari work Design 02",
+    "category": "Aari work",
+    "imageUrl": "/api/design-assets/002-aari-work-02.webp"
+  },
+  {
+    "id": "aari-work-03",
+    "name": "Aari work Design 03",
+    "category": "Aari work",
+    "imageUrl": "/api/design-assets/003-aari-work-03.webp"
+  },
+  {
+    "id": "aari-work-04",
+    "name": "Aari work Design 04",
+    "category": "Aari work",
+    "imageUrl": "/api/design-assets/004-aari-work-04.webp"
+  },
+  {
+    "id": "aari-work-05",
+    "name": "Aari work Design 05",
+    "category": "Aari work",
+    "imageUrl": "/api/design-assets/005-aari-work-05.webp"
+  },
+  {
+    "id": "aari-work-06",
+    "name": "Aari work Design 06",
+    "category": "Aari work",
+    "imageUrl": "/api/design-assets/006-aari-work-06.webp"
+  },
+  {
+    "id": "aari-work-07",
+    "name": "Aari work Design 07",
+    "category": "Aari work",
+    "imageUrl": "/api/design-assets/007-aari-work-07.webp"
+  },
+  {
+    "id": "aari-work-08",
+    "name": "Aari work Design 08",
+    "category": "Aari work",
+    "imageUrl": "/api/design-assets/008-aari-work-08.webp"
+  },
+  {
+    "id": "aari-work-09",
+    "name": "Aari work Design 09",
+    "category": "Aari work",
+    "imageUrl": "/api/design-assets/009-aari-work-09.webp"
+  },
+  {
+    "id": "aari-work-10",
+    "name": "Aari work Design 10",
+    "category": "Aari work",
+    "imageUrl": "/api/design-assets/010-aari-work-10.webp"
+  },
+  {
+    "id": "aari-work-11",
+    "name": "Aari work Design 11",
+    "category": "Aari work",
+    "imageUrl": "/api/design-assets/011-aari-work-11.webp"
+  },
+  {
+    "id": "aari-work-12",
+    "name": "Aari work Design 12",
+    "category": "Aari work",
+    "imageUrl": "/api/design-assets/012-aari-work-12.webp"
+  },
+  {
+    "id": "aari-work-13",
+    "name": "Aari work Design 13",
+    "category": "Aari work",
+    "imageUrl": "/api/design-assets/013-aari-work-13.webp"
+  },
+  {
+    "id": "aari-work-14",
+    "name": "Aari work Design 14",
+    "category": "Aari work",
+    "imageUrl": "/api/design-assets/014-aari-work-14.webp"
+  },
+  {
+    "id": "aari-work-15",
+    "name": "Aari work Design 15",
+    "category": "Aari work",
+    "imageUrl": "/api/design-assets/015-aari-work-15.webp"
+  },
+  {
+    "id": "aari-work-16",
+    "name": "Aari work Design 16",
+    "category": "Aari work",
+    "imageUrl": "/api/design-assets/016-aari-work-16.webp"
+  },
+  {
+    "id": "aari-work-17",
+    "name": "Aari work Design 17",
+    "category": "Aari work",
+    "imageUrl": "/api/design-assets/017-aari-work-17.webp"
+  },
+  {
+    "id": "aari-work-18",
+    "name": "Aari work Design 18",
+    "category": "Aari work",
+    "imageUrl": "/api/design-assets/018-aari-work-18.webp"
+  },
+  {
+    "id": "aari-work-19",
+    "name": "Aari work Design 19",
+    "category": "Aari work",
+    "imageUrl": "/api/design-assets/019-aari-work-19.webp"
+  },
+  {
+    "id": "aari-work-20",
+    "name": "Aari work Design 20",
+    "category": "Aari work",
+    "imageUrl": "/api/design-assets/020-aari-work-20.webp"
+  },
+  {
+    "id": "aari-work-21",
+    "name": "Aari work Design 21",
+    "category": "Aari work",
+    "imageUrl": "/api/design-assets/021-aari-work-21.webp"
+  },
+  {
+    "id": "aari-work-22",
+    "name": "Aari work Design 22",
+    "category": "Aari work",
+    "imageUrl": "/api/design-assets/022-aari-work-22.webp"
+  },
+  {
+    "id": "aari-work-23",
+    "name": "Aari work Design 23",
+    "category": "Aari work",
+    "imageUrl": "/api/design-assets/023-aari-work-23.webp"
+  },
+  {
+    "id": "aari-work-24",
+    "name": "Aari work Design 24",
+    "category": "Aari work",
+    "imageUrl": "/api/design-assets/024-aari-work-24.webp"
+  },
+  {
+    "id": "aari-work-25",
+    "name": "Aari work Design 25",
+    "category": "Aari work",
+    "imageUrl": "/api/design-assets/025-aari-work-25.webp"
+  },
+  {
+    "id": "aari-work-26",
+    "name": "Aari work Design 26",
+    "category": "Aari work",
+    "imageUrl": "/api/design-assets/026-aari-work-26.webp"
+  },
+  {
+    "id": "aari-work-27",
+    "name": "Aari work Design 27",
+    "category": "Aari work",
+    "imageUrl": "/api/design-assets/027-aari-work-27.webp"
+  },
+  {
+    "id": "aari-work-28",
+    "name": "Aari work Design 28",
+    "category": "Aari work",
+    "imageUrl": "/api/design-assets/028-aari-work-28.webp"
+  },
+  {
+    "id": "aari-work-29",
+    "name": "Aari work Design 29",
+    "category": "Aari work",
+    "imageUrl": "/api/design-assets/029-aari-work-29.webp"
+  },
+  {
+    "id": "studio-edit-back",
+    "name": "Studio Edit Design Back",
+    "category": "Studio Edit",
+    "imageUrl": "/api/design-assets/030-studio-edit-back.webp"
+  },
+  {
+    "id": "blouse-001",
+    "name": "Blouse Design 001",
+    "category": "Blouse",
+    "imageUrl": "/api/design-assets/031-blouse-001.webp"
+  },
+  {
+    "id": "blouse-02",
+    "name": "Blouse Design 02",
+    "category": "Blouse",
+    "imageUrl": "/api/design-assets/032-blouse-02.webp"
+  },
+  {
+    "id": "blouse-03",
+    "name": "Blouse Design 03",
+    "category": "Blouse",
+    "imageUrl": "/api/design-assets/033-blouse-03.webp"
+  },
+  {
+    "id": "blouse-04",
+    "name": "Blouse Design 04",
+    "category": "Blouse",
+    "imageUrl": "/api/design-assets/034-blouse-04.webp"
+  },
+  {
+    "id": "blouse-05",
+    "name": "Blouse Design 05",
+    "category": "Blouse",
+    "imageUrl": "/api/design-assets/035-blouse-05.webp"
+  },
+  {
+    "id": "blouse-06",
+    "name": "Blouse Design 06",
+    "category": "Blouse",
+    "imageUrl": "/api/design-assets/036-blouse-06.webp"
+  },
+  {
+    "id": "blouse-07",
+    "name": "Blouse Design 07",
+    "category": "Blouse",
+    "imageUrl": "/api/design-assets/037-blouse-07.webp"
+  },
+  {
+    "id": "blouse-08",
+    "name": "Blouse Design 08",
+    "category": "Blouse",
+    "imageUrl": "/api/design-assets/038-blouse-08.webp"
+  },
+  {
+    "id": "blouse-09",
+    "name": "Blouse Design 09",
+    "category": "Blouse",
+    "imageUrl": "/api/design-assets/039-blouse-09.webp"
+  },
+  {
+    "id": "blouse-10",
+    "name": "Blouse Design 10",
+    "category": "Blouse",
+    "imageUrl": "/api/design-assets/040-blouse-10.webp"
+  },
+  {
+    "id": "blouse-11",
+    "name": "Blouse Design 11",
+    "category": "Blouse",
+    "imageUrl": "/api/design-assets/041-blouse-11.webp"
+  },
+  {
+    "id": "blouse-12",
+    "name": "Blouse Design 12",
+    "category": "Blouse",
+    "imageUrl": "/api/design-assets/042-blouse-12.webp"
+  },
+  {
+    "id": "blouse-13",
+    "name": "Blouse Design 13",
+    "category": "Blouse",
+    "imageUrl": "/api/design-assets/043-blouse-13.webp"
+  },
+  {
+    "id": "blouse-14",
+    "name": "Blouse Design 14",
+    "category": "Blouse",
+    "imageUrl": "/api/design-assets/044-blouse-14.webp"
+  },
+  {
+    "id": "blouse-15",
+    "name": "Blouse Design 15",
+    "category": "Blouse",
+    "imageUrl": "/api/design-assets/045-blouse-15.webp"
+  },
+  {
+    "id": "blouse-16",
+    "name": "Blouse Design 16",
+    "category": "Blouse",
+    "imageUrl": "/api/design-assets/046-blouse-16.webp"
+  },
+  {
+    "id": "blouse-17",
+    "name": "Blouse Design 17",
+    "category": "Blouse",
+    "imageUrl": "/api/design-assets/047-blouse-17.webp"
+  },
+  {
+    "id": "blouse-18",
+    "name": "Blouse Design 18",
+    "category": "Blouse",
+    "imageUrl": "/api/design-assets/048-blouse-18.webp"
+  },
+  {
+    "id": "blouse-19",
+    "name": "Blouse Design 19",
+    "category": "Blouse",
+    "imageUrl": "/api/design-assets/049-blouse-19.webp"
+  },
+  {
+    "id": "blouse-20",
+    "name": "Blouse Design 20",
+    "category": "Blouse",
+    "imageUrl": "/api/design-assets/050-blouse-20.webp"
+  },
+  {
+    "id": "blouse-21",
+    "name": "Blouse Design 21",
+    "category": "Blouse",
+    "imageUrl": "/api/design-assets/051-blouse-21.webp"
+  },
+  {
+    "id": "blouse-22",
+    "name": "Blouse Design 22",
+    "category": "Blouse",
+    "imageUrl": "/api/design-assets/052-blouse-22.webp"
+  },
+  {
+    "id": "blouse-23",
+    "name": "Blouse Design 23",
+    "category": "Blouse",
+    "imageUrl": "/api/design-assets/053-blouse-23.webp"
+  },
+  {
+    "id": "blouse-24",
+    "name": "Blouse Design 24",
+    "category": "Blouse",
+    "imageUrl": "/api/design-assets/054-blouse-24.webp"
+  },
+  {
+    "id": "blouse-25",
+    "name": "Blouse Design 25",
+    "category": "Blouse",
+    "imageUrl": "/api/design-assets/055-blouse-25.webp"
+  },
+  {
+    "id": "elb-01",
+    "name": "Elb Design 01",
+    "category": "Elb",
+    "imageUrl": "/api/design-assets/056-elb-01.webp"
+  },
+  {
+    "id": "elb-02",
+    "name": "Elb Design 02",
+    "category": "Elb",
+    "imageUrl": "/api/design-assets/057-elb-02.webp"
+  },
+  {
+    "id": "elb-03",
+    "name": "Elb Design 03",
+    "category": "Elb",
+    "imageUrl": "/api/design-assets/058-elb-03.webp"
+  },
+  {
+    "id": "elb-04",
+    "name": "Elb Design 04",
+    "category": "Elb",
+    "imageUrl": "/api/design-assets/059-elb-04.webp"
+  },
+  {
+    "id": "elb-05",
+    "name": "Elb Design 05",
+    "category": "Elb",
+    "imageUrl": "/api/design-assets/060-elb-05.webp"
+  },
+  {
+    "id": "elb-06",
+    "name": "Elb Design 06",
+    "category": "Elb",
+    "imageUrl": "/api/design-assets/061-elb-06.webp"
+  },
+  {
+    "id": "elb-07",
+    "name": "Elb Design 07",
+    "category": "Elb",
+    "imageUrl": "/api/design-assets/062-elb-07.webp"
+  },
+  {
+    "id": "elb-08",
+    "name": "Elb Design 08",
+    "category": "Elb",
+    "imageUrl": "/api/design-assets/063-elb-08.webp"
+  },
+  {
+    "id": "elb-09",
+    "name": "Elb Design 09",
+    "category": "Elb",
+    "imageUrl": "/api/design-assets/064-elb-09.webp"
+  },
+  {
+    "id": "elb-10",
+    "name": "Elb Design 10",
+    "category": "Elb",
+    "imageUrl": "/api/design-assets/065-elb-10.webp"
+  },
+  {
+    "id": "elb-11",
+    "name": "Elb Design 11",
+    "category": "Elb",
+    "imageUrl": "/api/design-assets/066-elb-11.webp"
+  },
+  {
+    "id": "elb-12",
+    "name": "Elb Design 12",
+    "category": "Elb",
+    "imageUrl": "/api/design-assets/067-elb-12.webp"
+  },
+  {
+    "id": "elb-13",
+    "name": "Elb Design 13",
+    "category": "Elb",
+    "imageUrl": "/api/design-assets/068-elb-13.webp"
+  },
+  {
+    "id": "elb-14",
+    "name": "Elb Design 14",
+    "category": "Elb",
+    "imageUrl": "/api/design-assets/069-elb-14.webp"
+  },
+  {
+    "id": "elb-15",
+    "name": "Elb Design 15",
+    "category": "Elb",
+    "imageUrl": "/api/design-assets/070-elb-15.webp"
+  },
+  {
+    "id": "elb-16",
+    "name": "Elb Design 16",
+    "category": "Elb",
+    "imageUrl": "/api/design-assets/071-elb-16.webp"
+  },
+  {
+    "id": "elb-17",
+    "name": "Elb Design 17",
+    "category": "Elb",
+    "imageUrl": "/api/design-assets/072-elb-17.webp"
+  },
+  {
+    "id": "elb-18",
+    "name": "Elb Design 18",
+    "category": "Elb",
+    "imageUrl": "/api/design-assets/073-elb-18.webp"
+  },
+  {
+    "id": "elb-19",
+    "name": "Elb Design 19",
+    "category": "Elb",
+    "imageUrl": "/api/design-assets/074-elb-19.webp"
+  },
+  {
+    "id": "elb-20",
+    "name": "Elb Design 20",
+    "category": "Elb",
+    "imageUrl": "/api/design-assets/075-elb-20.webp"
+  },
+  {
+    "id": "elb-21",
+    "name": "Elb Design 21",
+    "category": "Elb",
+    "imageUrl": "/api/design-assets/076-elb-21.webp"
+  },
+  {
+    "id": "elb-22",
+    "name": "Elb Design 22",
+    "category": "Elb",
+    "imageUrl": "/api/design-assets/077-elb-22.webp"
+  },
+  {
+    "id": "elb-23",
+    "name": "Elb Design 23",
+    "category": "Elb",
+    "imageUrl": "/api/design-assets/078-elb-23.webp"
+  },
+  {
+    "id": "elb-24",
+    "name": "Elb Design 24",
+    "category": "Elb",
+    "imageUrl": "/api/design-assets/079-elb-24.webp"
+  },
+  {
+    "id": "elb-25",
+    "name": "Elb Design 25",
+    "category": "Elb",
+    "imageUrl": "/api/design-assets/080-elb-25.webp"
+  },
+  {
+    "id": "elb-26",
+    "name": "Elb Design 26",
+    "category": "Elb",
+    "imageUrl": "/api/design-assets/081-elb-26.webp"
+  },
+  {
+    "id": "elb-27",
+    "name": "Elb Design 27",
+    "category": "Elb",
+    "imageUrl": "/api/design-assets/082-elb-27.webp"
+  },
+  {
+    "id": "elb-28",
+    "name": "Elb Design 28",
+    "category": "Elb",
+    "imageUrl": "/api/design-assets/083-elb-28.webp"
+  },
+  {
+    "id": "elb-29",
+    "name": "Elb Design 29",
+    "category": "Elb",
+    "imageUrl": "/api/design-assets/084-elb-29.webp"
+  },
+  {
+    "id": "elb-30",
+    "name": "Elb Design 30",
+    "category": "Elb",
+    "imageUrl": "/api/design-assets/085-elb-30.webp"
+  },
+  {
+    "id": "elb-31",
+    "name": "Elb Design 31",
+    "category": "Elb",
+    "imageUrl": "/api/design-assets/086-elb-31.webp"
+  },
+  {
+    "id": "elb-32",
+    "name": "Elb Design 32",
+    "category": "Elb",
+    "imageUrl": "/api/design-assets/087-elb-32.webp"
+  },
+  {
+    "id": "elb-33",
+    "name": "Elb Design 33",
+    "category": "Elb",
+    "imageUrl": "/api/design-assets/088-elb-33.webp"
+  },
+  {
+    "id": "elb-34",
+    "name": "Elb Design 34",
+    "category": "Elb",
+    "imageUrl": "/api/design-assets/089-elb-34.webp"
+  },
+  {
+    "id": "elb-35",
+    "name": "Elb Design 35",
+    "category": "Elb",
+    "imageUrl": "/api/design-assets/090-elb-35.webp"
+  },
+  {
+    "id": "elb-36",
+    "name": "Elb Design 36",
+    "category": "Elb",
+    "imageUrl": "/api/design-assets/091-elb-36.webp"
+  },
+  {
+    "id": "elb-37",
+    "name": "Elb Design 37",
+    "category": "Elb",
+    "imageUrl": "/api/design-assets/092-elb-37.webp"
+  },
+  {
+    "id": "elb-38",
+    "name": "Elb Design 38",
+    "category": "Elb",
+    "imageUrl": "/api/design-assets/093-elb-38.webp"
+  },
+  {
+    "id": "studio-edit-front",
+    "name": "Studio Edit Design front",
+    "category": "Studio Edit",
+    "imageUrl": "/api/design-assets/094-studio-edit-front.webp"
+  }
+]
