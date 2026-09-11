@@ -29,6 +29,7 @@ const customerSchema = new mongoose.Schema(
       type: String,
       trim: true,
     },
+    measurementPhotoUrl: String,
     measurements: {
       size: String,
       bust: Number,

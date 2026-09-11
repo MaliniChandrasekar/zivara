@@ -1,4 +1,5 @@
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
+import { createPortal } from "react-dom";
 import "./App.css";
 import {
   CoutureShowcase,
@@ -14,80 +15,56 @@ const services = [
     "✦",
     "Designer Blouses",
     "Bridal, aari, maggam and contemporary cuts made to your measurements.",
-    "From ₹1,499",
   ],
   [
     "◒",
     "Aari Work",
     "Traditional and contemporary Aari patterns finished with fine handcrafted detail.",
-    "From ₹999",
   ],
   [
     "♢",
     "Embroidery Work",
     "Elegant thread, bead and motif embroidery designed around your blouse and occasion.",
-    "From ₹1,199",
   ],
   [
     "⌁",
-    "Custom Dresses",
-    "Bring a reference or let our designers create something only for you.",
-    "From ₹1,999",
+    "Chudi & Maxi",
+    "Custom-stitched churidars and maxi dresses designed to your measurements.",
   ],
 ];
 const designs = [
-  ["The Mayura Blouse", "Aari Collection", "Bestseller"],
-  ["Saffron Drape", "Festive Edit", "New"],
-  ["Noor Bridal Set", "Bridal Couture", "Signature"],
-  ["Aadhira Maxi", "Evening Edit", "New"],
-  ["Varnam Lehenga", "Celebration Edit", "Limited"],
-  ["Meera Kurti", "Everyday Luxe", "Atelier Pick"],
+  { name: "Floral Tiered Maxi", category: "Maxi Dress", tag: "New", imageUrl: "/api/design-assets/studio-edit-maxi-4d597b5d.webp" },
+  { name: "Grand Birthday Gown", category: "Baby Dresses", tag: "Atelier Pick", imageUrl: "/api/design-assets/studio-edit-babygown-706f239f.webp" },
+  { name: "Mom & Daughter Maxi Combo", category: "Matching Sets", tag: "New", imageUrl: "/api/design-assets/studio-edit-mom-daughter-47775fdc.webp" },
+  { name: "Keyhole Back Blouse", category: "Pattern Blouse", tag: "Signature", imageUrl: "/api/design-assets/blouse-08-1-8bd814ab.webp" },
+  { name: "Bridal Aari Blouse", category: "Aari Work", tag: "Bestseller", imageUrl: "/api/design-assets/studio-edit-aari-b4d27c0f.webp" },
+  { name: "Wine Embroidered Blouse", category: "Embroidery Work", tag: "Signature", imageUrl: "/api/design-assets/studio-edit-emb-c178e55c.webp" },
 ];
-const seedOrders = [
-  {
-    id: "ZV-1048",
-    customer: "Priya R",
-    item: "Bridal blouse",
-    date: "Sep 05",
-    amount: "₹8,500",
-    status: "Stitching",
-  },
-  {
-    id: "ZV-1047",
-    customer: "Nandhini S",
-    item: "Churidar set",
-    date: "Sep 03",
-    amount: "₹3,200",
-    status: "Trial",
-  },
-  {
-    id: "ZV-1046",
-    customer: "Meena K",
-    item: "Saree fall & pico",
-    date: "Today",
-    amount: "₹650",
-    status: "Ready",
-  },
-  {
-    id: "ZV-1045",
-    customer: "Aishwarya P",
-    item: "Designer gown",
-    date: "Sep 08",
-    amount: "₹5,900",
-    status: "Cutting",
-  },
-];
+const showFabricSection = false;
+const showStoriesSection = false;
+const showCoutureSection = false;
+const showTestimonialSection = false;
+const showProcessSection = false;
 const nav = [
   "Overview",
   "Orders",
   "Customers",
   "Enquiries",
-  "Appointments",
-  "Designs",
-  "Services",
+  "Feedback",
 ];
 
-function Logo({ light = false }) {
+function Logo({ light = false, compact = false }) {
+  if (compact) {
+    return (
+      <a className="logo logo-inline" href="/" aria-label="Zivara Design Studio home">
+        <img className="logo-mark" src="/zivara-mark.webp" alt="" />
+        <div>
+          <b>Zivara</b>
+          <small>Design Studio</small>
+        </div>
+      </a>
+    );
+  }
   return (
     <a
       className={"logo brand-logo " + (light ? "light" : "")}
@@ -106,14 +83,8 @@ function Store() {
   const [form, setForm] = useState({
       name: "",
       phone: "",
-      email: "",
-      service: "Designer Blouse",
-      preferredDate: "",
-      preferredTime: "Morning",
-      city: "",
-      budget: "",
+      rating: 5,
       message: "",
-      referenceImageName: "",
     }),
     [sent, setSent] = useState(false),
     [busy, setBusy] = useState(false),
@@ -123,9 +94,20 @@ function Store() {
     [loading, setLoading] = useState(
       () => !sessionStorage.getItem("zivara-intro-seen"),
     ),
-    cursorRef = useRef(null),
+    [shopInfo, setShopInfo] = useState({
+      address: "No. 41 K, Salai Pudur, Bypass Rd, Thikathir, Madurai, Tamil Nadu 625018",
+      phone: "+91 82203 64840",
+      hours: "Mon–Sat · 10:00 AM–8:00 PM",
+    }),
     progressRef = useRef(null),
-    spotRef = useRef(null);
+    spotRef = useRef(null),
+    cursorRef = useRef(null);
+  useEffect(() => {
+    fetch("/api/settings")
+      .then((r) => r.json())
+      .then((body) => body.success && setShopInfo(body.data))
+      .catch(() => {});
+  }, []);
   useEffect(() => {
     const items = document.querySelectorAll(
       ".section,.collection,.testimonial,.contact,.atelier-story,.promise-strip",
@@ -159,17 +141,25 @@ function Store() {
   const submit = async (e) => {
     e.preventDefault();
     setBusy(true);
+    const payload = {
+      name: form.name,
+      phone: form.phone,
+      service: "Feedback",
+      rating: form.rating,
+      message: form.message,
+      source: "Feedback Widget",
+    };
     try {
       const r = await fetch("/api/enquiries", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(form),
+        body: JSON.stringify(payload),
       });
       if (!r.ok) throw Error();
     } catch {
       localStorage.setItem(
-        "zivara-last-enquiry",
-        JSON.stringify({ ...form, createdAt: new Date() }),
+        "zivara-last-feedback",
+        JSON.stringify({ ...payload, createdAt: new Date() }),
       );
     }
     setBusy(false);
@@ -187,6 +177,10 @@ function Store() {
     if (spotRef.current)
       spotRef.current.style.transform = `translate3d(${e.clientX - 220}px,${e.clientY - 220}px,0)`;
   };
+  const scrollToSection = (id, e) => {
+    e.preventDefault();
+    document.getElementById(id)?.scrollIntoView({ behavior: "smooth" });
+  };
   return (
     <div
       className={`store theme-banner ${loading ? "is-loading" : ""}`}
@@ -194,6 +188,9 @@ function Store() {
     >
       <div className="scroll-progress" ref={progressRef} />
       <div className="ambient-spot" ref={spotRef} />
+      <div className="luxury-cursor" ref={cursorRef}>
+        <span />
+      </div>
       {loading && (
         <div className="premium-loader">
           <div className="loader-thread">
@@ -209,17 +206,8 @@ function Store() {
           <p>CRAFTING YOUR EXPERIENCE</p>
         </div>
       )}
-      <div className="luxury-cursor" ref={cursorRef}>
-        <span />
-      </div>
-      <div className="announcement">
-        Have a design in mind? Get it stitched to your perfect fit.{" "}
-        <a href="#contact">
-          <span>Book a free consultation →</span>
-        </a>
-      </div>
-      <header className="site-header wrap">
-        <Logo />
+      <header className={"site-header wrap" + (menu ? " nav-open" : "")}>
+        <Logo compact />
         <button
           className="menu"
           aria-label="Open navigation"
@@ -229,36 +217,39 @@ function Store() {
           ☰
         </button>
         <nav className={menu ? "open" : ""}>
-          <a href="#home" onClick={() => setMenu(false)}>
+          <a href="#home" onClick={(e) => { scrollToSection("home", e); setMenu(false); }}>
             Home
           </a>
-          <a href="#services" onClick={() => setMenu(false)}>
-            Services
+          <a href="#designs" onClick={(e) => { scrollToSection("designs", e); setMenu(false); }}>
+            Our Work
           </a>
-          <a href="#designs" onClick={() => setMenu(false)}>
-            Collections
+          <a href="#services" onClick={(e) => { scrollToSection("services", e); setMenu(false); }}>
+            Designs
           </a>
-          <a href="#process" onClick={() => setMenu(false)}>
-            Our process
+          <a href="#atelier" onClick={(e) => { scrollToSection("atelier", e); setMenu(false); }}>
+            About Us
           </a>
-          <a href="#atelier" onClick={() => setMenu(false)}>
-            Atelier
+          <a href="#journal" onClick={(e) => { scrollToSection("journal", e); setMenu(false); }}>
+            FAQ
           </a>
-          <a href="#journal" onClick={() => setMenu(false)}>
-            Journal
-          </a>
-          <a href="#contact" onClick={() => setMenu(false)}>
+          <a href="#contact" onClick={(e) => { scrollToSection("contact", e); setMenu(false); }}>
             Contact
           </a>
         </nav>
         <div className="header-actions">
-          <a className="pill dark" href="#contact">
-            Book a fitting
+          <a
+            className="pill dark"
+            href="https://www.google.com/maps/place/Zivara+Design+Studio/@9.9439657,78.0996304,17z/data=!4m6!3m5!1s0x3b00cf60ad5dd237:0xb7440d08286f3d6e!8m2!3d9.9439657!4d78.0996304!16s%2Fg%2F11zdhwn9yd"
+            target="_blank"
+            rel="noopener noreferrer"
+          >
+            Visit Our Shop
           </a>
         </div>
       </header>
       <main>
         <section
+          id="home"
           className="hero"
           onMouseMove={(e) => {
             const r = e.currentTarget.getBoundingClientRect();
@@ -281,32 +272,10 @@ function Store() {
                 <em>Your perfect fit.</em>
               </h1>
               <p>
-                Custom blouses, maxi dresses, bridal wear and
-                alterations—beautifully designed to your measurements and
-                delivered on time.
+                Blouses, maxi dresses, chudis, baby dresses, Aari work and
+                embroidery—every piece crafted to your measurements with the
+                detail it deserves.
               </p>
-              <div className="hero-actions">
-                <a href="#contact" className="pill gold">
-                  Book a consultation
-                </a>
-                <a href="#designs">View our designs ↗</a>
-              </div>
-              <div className="proof">
-                <div>
-                  <b>12+</b>
-                  <span>Years of tailoring</span>
-                </div>
-                <i />
-                <div>
-                  <b>4.9/5</b>
-                  <span>Customer rating</span>
-                </div>
-                <i />
-                <div>
-                  <b>2,400+</b>
-                  <span>Outfits completed</span>
-                </div>
-              </div>
             </div>
             <div
               className="hero-art"
@@ -315,7 +284,6 @@ function Store() {
                 "--ry": `${tilt.x * 7}deg`,
               }}
             >
-              <div className="ring" />
               <div className="arch model-arch">
                 <img
                   className="maxi-model"
@@ -328,11 +296,34 @@ function Store() {
             </div>
           </div>
         </section>
+        <section id="designs" className="collection">
+          <div className="wrap">
+            <Heading
+              eyebrow="OUR SPECIALTIES"
+              title="Everything we craft, in one place."
+            />
+            <div className="design-grid">
+              {designs.map((d, i) => (
+                <article key={d.name + i} style={{ "--stagger": `${i * 130}ms` }}>
+                  <div className={"design-art art" + (i % 3)}>
+                    {d.tag && <span>{d.tag}</span>}
+                    <img src={d.imageUrl} alt={d.name} loading="lazy" />
+                    <div className="design-number">0{i + 1}</div>
+                  </div>
+                  <small>{d.category}</small>
+                  <div>
+                    <h3>{d.name}</h3>
+                  </div>
+                </article>
+              ))}
+            </div>
+          </div>
+        </section>
         <section id="services" className="section wrap">
           <Heading
-            eyebrow="WHAT WE CREATE"
-            title="Tailoring, elevated."
-            text="From an everyday alteration to once-in-a-lifetime couture, every piece receives the same attention."
+            eyebrow="OUR DESIGN COLLECTIONS"
+            title="Designs, made to fit you."
+            text="Browse our blouse, Aari, embroidery and chudi & maxi collections, then let us tailor your favourite to your exact measurements."
           />
           <div className="service-grid">
             {services.map((s, i) => (
@@ -344,23 +335,18 @@ function Store() {
                 <h3>{s[1]}</h3>
                 <p>{s[2]}</p>
                 <footer>
-                  <b>{s[3]}</b>
                   <button type="button" onClick={() => setCollectionModal(s[1])}>
-                    Explore →
+                    View Designs →
                   </button>
                 </footer>
               </article>
             ))}
           </div>
         </section>
-        <section className="atelier-story">
+        <section id="atelier" className="atelier-story">
           <div className="atelier-visual">
             <div className="atelier-frame">
-              <div className="artisan">
-                <span />
-                <i />
-                <b />
-              </div>
+              <img src="/zivara-shop-interior.webp" alt="Zivara Design Studio shop interior" />
               <small>
                 THE HANDS BEHIND
                 <br />
@@ -369,11 +355,16 @@ function Store() {
             </div>
             <div className="seal">
               <span>Z</span>
-              <small>EST. 2014</small>
+              <small>EST. 2025</small>
+            </div>
+            <div className="atelier-accent">
+              <img
+                src="/zivara-atelier-accent.webp"
+                alt="Zivara tailors at work in the studio"
+              />
             </div>
           </div>
           <div className="atelier-copy">
-            <div className="eyebrow">INSIDE OUR ATELIER</div>
             <h2>
               Where patience
               <br />
@@ -389,144 +380,121 @@ function Store() {
               celebrate and how you want to feel.”
             </blockquote>
             <div className="signature">
-              <span>Anitha</span>
-              <small>FOUNDER &amp; HEAD DESIGNER</small>
-            </div>
-            <a href="#contact">
-              Meet your designer <b>↗</b>
-            </a>
-          </div>
-        </section>
-        <section id="designs" className="collection">
-          <div className="collection-marquee">
-            <div>
-              TIMELESS CRAFT ✦ MODERN SILHOUETTES ✦ MADE FOR YOU ✦ TIMELESS
-              CRAFT ✦ MODERN SILHOUETTES ✦ MADE FOR YOU ✦
-            </div>
-          </div>
-          <div className="wrap">
-            <Heading
-              eyebrow="THE ZIVARA EDIT"
-              title="Designed to be remembered."
-            />
-            <div className="design-grid">
-              {designs.map((d, i) => (
-                <article key={d[0]} style={{ "--stagger": `${i * 130}ms` }}>
-                  <div className={"design-art art" + i}>
-                    <span>{d[2]}</span>
-                    <div className="model">
-                      <i />
-                      <b />
-                    </div>
-                    <div className="design-number">0{i + 1}</div>
-                  </div>
-                  <small>{d[1]}</small>
-                  <div>
-                    <h3>{d[0]}</h3>
-                    <button>↗</button>
-                  </div>
-                </article>
-              ))}
+              <span>Zivara</span>
+              <small>OUR TAILORING TEAM</small>
             </div>
           </div>
         </section>
-        <section className="material-section section">
-          <div className="wrap">
-            <div className="material-head">
-              <div>
-                <div className="eyebrow">A WORLD OF TEXTURE</div>
-                <h2>
-                  Begin with the
-                  <br />
-                  <em>perfect canvas.</em>
-                </h2>
-              </div>
-              <p>
-                Curated fabrics selected for their drape, comfort and character.
-                Touch and compare them during your private consultation.
-              </p>
-            </div>
-            <div className="swatch-grid">
-              {[
-                ["K", "Kanchipuram Silk", "Heritage · Lustrous", "silk"],
-                ["V", "Velvet", "Evening · Rich", "velvet"],
-                ["O", "Organza", "Airy · Sculptural", "organza"],
-                ["L", "Pure Linen", "Natural · Timeless", "linen"],
-              ].map((x, i) => (
-                <article key={x[1]}>
-                  <div className={"swatch " + x[3]}>
-                    <span>{x[0]}</span>
-                    <i>0{i + 1}</i>
-                  </div>
-                  <h3>{x[1]}</h3>
-                  <p>{x[2]}</p>
-                </article>
-              ))}
-            </div>
-            <div className="material-note">
-              <span>✦</span> Fabric sourcing available for custom and bridal
-              orders <a href="#contact">Ask our designer →</a>
-            </div>
-          </div>
-        </section>
-        <section id="process" className="section wrap process">
-          <div>
-            <div className="eyebrow">HOW IT WORKS</div>
-            <h2>
-              Your perfect fit,
-              <br />
-              <em>without the fuss.</em>
-            </h2>
-            <p>
-              Clear updates from consultation to collection. You always know
-              what happens next.
-            </p>
-            <a href="#contact" className="pill dark">
-              Book consultation
-            </a>
-          </div>
-          <div className="steps">
-            {[
-              ["Share your idea", "Send a reference or tell us the occasion."],
-              ["Measure & design", "Precise measurements and fabric guidance."],
-              [
-                "Trial & refine",
-                "A dedicated fitting ensures comfort and balance.",
-              ],
-              [
-                "Collect & shine",
-                "Quality-checked and ready on the promised date.",
-              ],
-            ].map((x, i) => (
-              <article key={x[0]}>
-                <span>0{i + 1}</span>
+        {showFabricSection && (
+          <section className="material-section section">
+            <div className="wrap">
+              <div className="material-head">
                 <div>
-                  <h3>{x[0]}</h3>
-                  <p>{x[1]}</p>
+                  <div className="eyebrow">A WORLD OF TEXTURE</div>
+                  <h2>
+                    Begin with the
+                    <br />
+                    <em>perfect canvas.</em>
+                  </h2>
                 </div>
-              </article>
-            ))}
-          </div>
-        </section>
-        <CoutureShowcase />
-        <FitComparison />
-        <TransformationStories />
-        <TestimonialCarousel />
-        <section className="promise-strip">
-          <div className="wrap">
-            {[
-              ["01", "Private consultation"],
-              ["02", "Personal measurements"],
-              ["03", "Transparent timelines"],
-              ["04", "One perfect fit"],
-            ].map((x) => (
-              <div key={x[0]}>
-                <small>{x[0]}</small>
-                <span>{x[1]}</span>
+                <p>
+                  Curated fabrics selected for their drape, comfort and
+                  character. Touch and compare them when you visit us.
+                </p>
               </div>
-            ))}
-          </div>
-        </section>
+              <div className="swatch-grid">
+                {[
+                  ["K", "Kanchipuram Silk", "Heritage · Lustrous", "silk"],
+                  ["V", "Velvet", "Evening · Rich", "velvet"],
+                  ["O", "Organza", "Airy · Sculptural", "organza"],
+                  ["L", "Pure Linen", "Natural · Timeless", "linen"],
+                ].map((x, i) => (
+                  <article key={x[1]}>
+                    <div className={"swatch " + x[3]}>
+                      <span>{x[0]}</span>
+                      <i>0{i + 1}</i>
+                    </div>
+                    <h3>{x[1]}</h3>
+                    <p>{x[2]}</p>
+                  </article>
+                ))}
+              </div>
+              <div className="material-note">
+                <span>✦</span> Fabric sourcing available for custom and
+                bridal orders <a href="#contact" onClick={(e) => scrollToSection("contact", e)}>Ask our designer →</a>
+              </div>
+            </div>
+          </section>
+        )}
+        {showProcessSection && (
+          <section id="process" className="section wrap process">
+            <div>
+              <div className="eyebrow">HOW IT WORKS</div>
+              <h2>
+                Your perfect fit,
+                <br />
+                <em>without the fuss.</em>
+              </h2>
+              <p>
+                Clear updates from consultation to collection. You always know
+                what happens next.
+              </p>
+              <a
+                href="https://www.google.com/maps/place/Zivara+Design+Studio/@9.9439657,78.0996304,17z/data=!4m6!3m5!1s0x3b00cf60ad5dd237:0xb7440d08286f3d6e!8m2!3d9.9439657!4d78.0996304!16s%2Fg%2F11zdhwn9yd"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="pill dark"
+              >
+                Visit Our Shop
+              </a>
+            </div>
+            <div className="steps">
+              {[
+                ["Share your idea", "Send a reference or tell us the occasion."],
+                ["Measure & design", "Precise measurements and fabric guidance."],
+                [
+                  "Trial & refine",
+                  "A dedicated fitting ensures comfort and balance.",
+                ],
+                [
+                  "Collect & shine",
+                  "Quality-checked and ready on the promised date.",
+                ],
+              ].map((x, i) => (
+                <article key={x[0]}>
+                  <span>0{i + 1}</span>
+                  <div>
+                    <h3>{x[0]}</h3>
+                    <p>{x[1]}</p>
+                  </div>
+                </article>
+              ))}
+            </div>
+          </section>
+        )}
+        {showCoutureSection && <CoutureShowcase />}
+        <FitComparison />
+        {showStoriesSection && <TransformationStories />}
+        {showTestimonialSection && (
+          <>
+            <TestimonialCarousel />
+            <section className="promise-strip">
+              <div className="wrap">
+                {[
+                  ["01", "Private consultation"],
+                  ["02", "Personal measurements"],
+                  ["03", "Transparent timelines"],
+                  ["04", "One perfect fit"],
+                ].map((x) => (
+                  <div key={x[0]}>
+                    <small>{x[0]}</small>
+                    <span>{x[1]}</span>
+                  </div>
+                ))}
+              </div>
+            </section>
+          </>
+        )}
         <JournalAndFaq />
         <section id="contact" className="contact">
           <div className="wrap contact-grid">
@@ -538,13 +506,9 @@ function Store() {
                 day.
               </p>
               {[
-                [
-                  "⌖",
-                  "Visit the studio",
-                  "NO. 49, Solai Pudhur, Bypass Road, Thoothukudi 628101",
-                ],
-                ["☎", "Call or WhatsApp", "+91 98765 43210"],
-                ["◷", "Studio hours", "Mon–Sat · 10:00 AM–8:00 PM"],
+                ["⌖", "Visit our shop", shopInfo.address],
+                ["☎", "Call or WhatsApp", shopInfo.phone],
+                ["◷", "Shop hours", shopInfo.hours],
               ].map((x) => (
                 <div className="detail" key={x[1]}>
                   <span>{x[0]}</span>
@@ -554,30 +518,35 @@ function Store() {
                   </p>
                 </div>
               ))}
+              <div className="contact-map">
+                <iframe
+                  title="Zivara Design Studio location"
+                  src="https://www.google.com/maps?q=9.9439657,78.0996304&output=embed"
+                  loading="lazy"
+                  referrerPolicy="no-referrer-when-downgrade"
+                />
+              </div>
             </div>
             <form onSubmit={submit}>
               {sent ? (
                 <div className="success">
                   <span>✓</span>
                   <h3>Thank you, {form.name}!</h3>
-                  <p>
-                    Your enquiry is saved. Our designer will contact you
-                    shortly.
-                  </p>
+                  <p>We really appreciate you taking the time to share your feedback.</p>
                   <button
                     type="button"
                     className="pill dark"
                     onClick={() => setSent(false)}
                   >
-                    Send another
+                    Share more feedback
                   </button>
                 </div>
               ) : (
                 <>
                   <div className="form-head">
                     <div>
-                      <small>DESIGN CONSULTATION</small>
-                      <h3>Request a callback</h3>
+                      <small>SHARE YOUR EXPERIENCE</small>
+                      <h3>Leave us feedback</h3>
                     </div>
                     <span>✦</span>
                   </div>
@@ -606,30 +575,24 @@ function Store() {
                       />
                     </Field>
                   </div>
-                  <Field label="I'm interested in">
-                    <select
-                      value={form.service}
-                      onChange={(e) =>
-                        setForm({ ...form, service: e.target.value })
-                      }
-                    >
-                      <option>Designer Blouse</option>
-                      <option>Bridal Couture</option>
-                      <option>Custom Dress</option>
-                      <option>Alteration</option>
-                    </select>
+                  <Field label="Your rating">
+                    <div className="rating-stars">
+                      {[1, 2, 3, 4, 5].map((n) => (
+                        <button
+                          type="button"
+                          key={n}
+                          aria-label={`${n} star${n > 1 ? "s" : ""}`}
+                          className={n <= form.rating ? "active" : ""}
+                          onClick={() => setForm({ ...form, rating: n })}
+                        >
+                          ★
+                        </button>
+                      ))}
+                    </div>
                   </Field>
-                  <Field label="Preferred date">
-                    <input
-                      type="date"
-                      value={form.preferredDate}
-                      onChange={(e) =>
-                        setForm({ ...form, preferredDate: e.target.value })
-                      }
-                    />
-                  </Field>
-                  <Field label="Tell us a little more">
+                  <Field label="Tell us about your experience">
                     <textarea
+                      required
                       rows="3"
                       value={form.message}
                       onChange={(e) =>
@@ -638,7 +601,7 @@ function Store() {
                     />
                   </Field>
                   <button disabled={busy} className="pill gold submit">
-                    {busy ? "Saving…" : "Request consultation →"}
+                    {busy ? "Saving…" : "Submit feedback →"}
                   </button>
                   <small className="privacy">
                     Your details stay private with Zivara.
@@ -649,44 +612,44 @@ function Store() {
           </div>
         </section>
       </main>
-      <footer className="site-footer">
-        <div className="wrap footer-grid">
-          <Logo light />
-          <p>
-            Beautifully made. Honestly fitted.
-            <br />
-            Made in Thoothukudi.
-          </p>
-          <div>
-            <a href="#services">Services</a>
-            <a href="#designs">Collections</a>
-            <a href="#contact">Contact</a>
-          </div>
-          <div>Instagram · Facebook · WhatsApp</div>
-        </div>
-        <div className="wrap copyright">
-          © 2026 Zivara Design Studio <span>Privacy · Terms</span>
-        </div>
-      </footer>
       <nav className="mobile-dock">
-        <a href="#services">
+        <a href="#services" onClick={(e) => scrollToSection("services", e)}>
           <span>✦</span>Services
         </a>
-        <a href="#designs">
+        <a href="#designs" onClick={(e) => scrollToSection("designs", e)}>
           <span>♢</span>Designs
         </a>
-        <a href="#contact" className="dock-main">
+        <a href="#contact" className="dock-main" onClick={(e) => scrollToSection("contact", e)}>
           <span>＋</span>Book
         </a>
-        <a href="tel:+919876543210">
+        <a href="tel:+918220364840">
           <span>☎</span>Call
         </a>
-        <a href="https://wa.me/919876543210">
+        <a href="https://wa.me/918220364840">
           <span>◉</span>Chat
         </a>
       </nav>
-      <a className="whatsapp" href="https://wa.me/919876543210">
-        ◉
+      <a
+        className="whatsapp instagram-float"
+        href="https://www.instagram.com/zivara_design_studio_/"
+        target="_blank"
+        rel="noopener noreferrer"
+        aria-label="Zivara Design Studio on Instagram"
+      >
+        <svg viewBox="0 0 24 24" width="24" height="24" fill="currentColor">
+          <path d="M12 2c-2.72 0-3.06.01-4.12.06-1.06.05-1.79.22-2.43.47a4.9 4.9 0 0 0-1.77 1.15A4.9 4.9 0 0 0 2.53 5.45c-.25.64-.42 1.37-.47 2.43C2.01 8.94 2 9.28 2 12s.01 3.06.06 4.12c.05 1.06.22 1.79.47 2.43a4.9 4.9 0 0 0 1.15 1.77 4.9 4.9 0 0 0 1.77 1.15c.64.25 1.37.42 2.43.47C8.94 21.99 9.28 22 12 22s3.06-.01 4.12-.06c1.06-.05 1.79-.22 2.43-.47a4.9 4.9 0 0 0 1.77-1.15 4.9 4.9 0 0 0 1.15-1.77c.25-.64.42-1.37.47-2.43.05-1.06.06-1.4.06-4.12s-.01-3.06-.06-4.12c-.05-1.06-.22-1.79-.47-2.43a4.9 4.9 0 0 0-1.15-1.77A4.9 4.9 0 0 0 18.55 2.53c-.64-.25-1.37-.42-2.43-.47C15.06 2.01 14.72 2 12 2zm0 1.8c2.67 0 2.99.01 4.04.06.98.04 1.5.21 1.85.34.47.18.8.4 1.15.75.35.35.57.68.75 1.15.13.35.3.87.34 1.85.05 1.05.06 1.37.06 4.04s-.01 2.99-.06 4.04c-.04.98-.21 1.5-.34 1.85-.18.47-.4.8-.75 1.15-.35.35-.68.57-1.15.75-.35.13-.87.3-1.85.34-1.05.05-1.37.06-4.04.06s-2.99-.01-4.04-.06c-.98-.04-1.5-.21-1.85-.34a3.1 3.1 0 0 1-1.15-.75 3.1 3.1 0 0 1-.75-1.15c-.13-.35-.3-.87-.34-1.85-.05-1.05-.06-1.37-.06-4.04s.01-2.99.06-4.04c.04-.98.21-1.5.34-1.85.18-.47.4-.8.75-1.15.35-.35.68-.57 1.15-.75.35-.13.87-.3 1.85-.34C9.01 3.81 9.33 3.8 12 3.8zm0 3.06a5.14 5.14 0 1 0 0 10.28 5.14 5.14 0 0 0 0-10.28zm0 8.48a3.34 3.34 0 1 1 0-6.68 3.34 3.34 0 0 1 0 6.68zm6.54-8.68a1.2 1.2 0 1 1-2.4 0 1.2 1.2 0 0 1 2.4 0z" />
+        </svg>
+      </a>
+      <a
+        className="whatsapp"
+        href="https://wa.me/918220364840"
+        target="_blank"
+        rel="noopener noreferrer"
+        aria-label="Chat with Zivara Design Studio on WhatsApp"
+      >
+        <svg viewBox="0 0 24 24" width="24" height="24" fill="currentColor">
+          <path d="M12.01 2C6.5 2 2.02 6.48 2.02 12c0 1.77.46 3.45 1.27 4.9L2 22l5.25-1.38A9.96 9.96 0 0 0 12.01 22C17.52 22 22 17.52 22 12S17.52 2 12.01 2zm0 18.13c-1.62 0-3.13-.44-4.43-1.2l-.32-.19-3.12.82.83-3.04-.2-.31a8.1 8.1 0 0 1-1.25-4.31c0-4.5 3.66-8.15 8.16-8.15 4.49 0 8.14 3.66 8.14 8.15s-3.65 8.23-8.11 8.23zm4.47-6.1c-.24-.12-1.44-.71-1.66-.79-.22-.08-.39-.12-.55.12-.16.24-.63.79-.78.95-.14.16-.29.18-.53.06-.24-.12-1.03-.38-1.96-1.21-.72-.65-1.21-1.44-1.35-1.68-.14-.24-.01-.37.11-.49.11-.11.24-.29.36-.43.12-.14.16-.24.24-.4.08-.16.04-.3-.02-.42-.06-.12-.55-1.33-.76-1.82-.2-.48-.4-.42-.55-.42h-.47c-.16 0-.42.06-.64.3-.22.24-.84.82-.84 2s.86 2.32.98 2.48c.12.16 1.7 2.6 4.13 3.64.58.25 1.03.4 1.38.51.58.18 1.11.16 1.53.1.47-.07 1.44-.59 1.64-1.16.2-.57.2-1.06.14-1.16-.06-.1-.22-.16-.46-.28z" />
+        </svg>
       </a>
       <ServiceCollectionModal
         key={collectionModal || "closed"}
@@ -717,34 +680,23 @@ function Field({ label, children }) {
 }
 
 function Admin({ logout }) {
-  const [active, setActive] = useState("Overview"),
-    [orders, setOrders] = useState(seedOrders),
+  const [active, setActiveRaw] = useState(
+      () => sessionStorage.getItem("zivara-admin-active") || "Overview",
+    ),
+    setActive = (tab) => {
+      sessionStorage.setItem("zivara-admin-active", tab);
+      setActiveRaw(tab);
+    },
     [q, setQ] = useState(""),
-    [side, setSide] = useState(false);
-  const filtered = useMemo(
-    () =>
-      orders.filter((o) =>
-        JSON.stringify(o).toLowerCase().includes(q.toLowerCase()),
-      ),
-    [orders, q],
-  );
-  const advance = (id) =>
-    setOrders((x) =>
-      x.map((o) =>
-        o.id === id
-          ? {
-              ...o,
-              status:
-                {
-                  Cutting: "Stitching",
-                  Stitching: "Trial",
-                  Trial: "Ready",
-                  Ready: "Delivered",
-                }[o.status] || "Delivered",
-            }
-          : o,
-      ),
-    );
+    [side, setSide] = useState(false),
+    [newEnquiryCount, setNewEnquiryCount] = useState(0);
+  useEffect(() => {
+    const token = sessionStorage.getItem("zivara-admin-token");
+    fetch("/api/enquiries?status=New&serviceNot=Feedback&limit=1", { headers: { Authorization: `Bearer ${token}` } })
+      .then((r) => r.json())
+      .then((body) => body.success && setNewEnquiryCount(body.total))
+      .catch(() => {});
+  }, [active]);
   return (
     <div className="admin">
       <aside className={side ? "show" : ""}>
@@ -770,16 +722,32 @@ function Admin({ logout }) {
               }}
               key={n}
             >
-              <span>{["⌂", "◇", "♙", "✉", "◷", "✦", "▦"][i]}</span>
+              <span>{["⌂", "◇", "♙", "✉", "★"][i]}</span>
               {n}
-              {n === "Enquiries" && <b>4</b>}
+              {n === "Enquiries" && newEnquiryCount > 0 && <b>{newEnquiryCount}</b>}
             </button>
           ))}
         </nav>
         <small>BUSINESS</small>
         <nav>
-          <button>▤ Payments</button>
-          <button>⚙ Settings</button>
+          <button
+            className={active === "Payments" ? "active" : ""}
+            onClick={() => {
+              setActive("Payments");
+              setSide(false);
+            }}
+          >
+            ▤ Payments
+          </button>
+          <button
+            className={active === "Settings" ? "active" : ""}
+            onClick={() => {
+              setActive("Settings");
+              setSide(false);
+            }}
+          >
+            ⚙ Settings
+          </button>
         </nav>
         <div className="profile">
           <span>AK</span>
@@ -799,21 +767,27 @@ function Admin({ logout }) {
             <p>Studio operations centre</p>
           </div>
           <div className="admin-actions">
-            <label>
-              ⌕{" "}
-              <input
-                placeholder={`Search ${active.toLowerCase()}...`}
-                value={q}
-                onChange={(e) => setQ(e.target.value)}
-              />
-            </label>
+            {active !== "Payments" && active !== "Settings" && (
+              <label>
+                ⌕{" "}
+                <input
+                  placeholder={`Search ${active.toLowerCase()}...`}
+                  value={q}
+                  onChange={(e) => setQ(e.target.value)}
+                />
+              </label>
+            )}
             <a href="/">View store ↗</a>
             <button onClick={logout}>Log out</button>
           </div>
         </header>
         <main>
           {active === "Overview" ? (
-            <Overview orders={filtered} advance={advance} go={setActive} />
+            <Overview go={setActive} />
+          ) : active === "Payments" ? (
+            <Payments />
+          ) : active === "Settings" ? (
+            <Settings />
           ) : (
             <Manager name={active} search={q} />
           )}
@@ -825,7 +799,7 @@ function Admin({ logout }) {
               onClick={() => setActive(n)}
               key={n}
             >
-              <span>{["⌂", "◇", "♙", "✉", "◷"][i]}</span>
+              <span>{["⌂", "◇", "♙", "✉", "★"][i]}</span>
               {n === "Overview" ? "Home" : n}
             </button>
           ))}
@@ -834,7 +808,37 @@ function Admin({ logout }) {
     </div>
   );
 }
-function Overview({ orders, advance, go }) {
+function Overview({ go }) {
+  const [data, setData] = useState(null),
+    [error, setError] = useState(""),
+    token = sessionStorage.getItem("zivara-admin-token");
+  const load = () => {
+    fetch("/api/overview/summary", { headers: { Authorization: `Bearer ${token}` } })
+      .then((r) => r.json())
+      .then((body) => {
+        if (!body.success) throw Error(body.message);
+        setData(body.data);
+      })
+      .catch((e) => setError(e.message || "Failed to load overview"));
+  };
+  useEffect(load, []); // eslint-disable-line react-hooks/exhaustive-deps
+  const advanceOrder = async (orderNumber) => {
+    const order = data.recentOrders.find((o) => o.id === orderNumber);
+    const next = { New: "Cutting", Cutting: "Stitching", Stitching: "Trial", Trial: "Ready", Ready: "Delivered" }[order.status] || "Delivered";
+    await fetch(`/api/orders?search=${encodeURIComponent(orderNumber)}`, { headers: { Authorization: `Bearer ${token}` } })
+      .then((r) => r.json())
+      .then((body) => body.data?.[0] && fetch(`/api/orders/${body.data[0]._id}`, {
+        method: "PUT",
+        headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },
+        body: JSON.stringify({ status: next }),
+      }))
+      .then(load)
+      .catch(() => {});
+  };
+  const money = (n) => `₹${Number(n || 0).toLocaleString("en-IN")}`;
+  if (error) return <div className="crud-error">⚠ {error}</div>;
+  if (!data) return <div className="crud-loading"><span /><p>Loading overview…</p></div>;
+  const maxProgress = Math.max(1, ...data.progress.map((p) => p.count));
   return (
     <>
       <section className="welcome">
@@ -844,24 +848,35 @@ function Overview({ orders, advance, go }) {
           <br />
           attention today.
         </h2>
-        <p>3 deliveries due and 4 new enquiries waiting.</p>
+        <p>{data.dueThisWeek} deliveries due this week and {data.newEnquiries} new enquiries waiting.</p>
         <i>✦</i>
-        <button>View today's schedule →</button>
+        <button onClick={() => go("Orders")}>View orders →</button>
       </section>
       <section className="metrics">
-        {[
-          ["₹48,650", "Revenue this month", "+12.4%"],
-          ["28", "Active orders", "6 due this week"],
-          ["342", "Total customers", "+18 this month"],
-          ["4", "New enquiries", "Needs response"],
-        ].map((m, i) => (
-          <article key={m[1]}>
-            <span>{["↗", "◇", "♙", "✉"][i]}</span>
-            <small>{m[1]}</small>
-            <strong>{m[0]}</strong>
-            <em>{m[2]}</em>
-          </article>
-        ))}
+        <article>
+          <span>↗</span>
+          <small>Revenue this month</small>
+          <strong>{money(data.revenueThisMonth)}</strong>
+          <em>{data.revenueChangePercent == null ? "—" : `${data.revenueChangePercent > 0 ? "+" : ""}${data.revenueChangePercent}%`}</em>
+        </article>
+        <article>
+          <span>◇</span>
+          <small>Active orders</small>
+          <strong>{data.activeOrdersCount}</strong>
+          <em>{data.dueThisWeek} due this week</em>
+        </article>
+        <article>
+          <span>♙</span>
+          <small>Total customers</small>
+          <strong>{data.totalCustomers}</strong>
+          <em>+{data.customersThisMonth} this month</em>
+        </article>
+        <article>
+          <span>✉</span>
+          <small>New enquiries</small>
+          <strong>{data.newEnquiries}</strong>
+          <em>{data.newEnquiries ? "Needs response" : "All caught up"}</em>
+        </article>
       </section>
       <div className="dash-grid">
         <Panel
@@ -869,61 +884,38 @@ function Overview({ orders, advance, go }) {
           sub="Track production and delivery"
           action={() => go("Orders")}
         >
-          <OrderTable orders={orders} advance={advance} />
-        </Panel>
-        <Panel title="Today's schedule" sub="September 01">
-          {[
-            ["10:30", "Measurement", "Sangeetha R"],
-            ["12:00", "Trial fitting", "Nandhini S"],
-            ["03:30", "Consultation", "Lavanya M"],
-            ["06:00", "Collection", "Meena K"],
-          ].map((x) => (
-            <div className="schedule" key={x[0]}>
-              <b>{x[0]}</b>
-              <i />
-              <div>
-                <strong>{x[1]}</strong>
-                <small>{x[2]}</small>
-              </div>
-              <span>⋮</span>
+          {data.recentOrders.length ? (
+            <OrderTable orders={data.recentOrders} advance={advanceOrder} />
+          ) : (
+            <div className="empty">
+              <span>✦</span>
+              <h3>No orders yet</h3>
+              <p>Orders you create will show up here.</p>
             </div>
-          ))}
+          )}
         </Panel>
-      </div>
-      <div className="dash-grid lower">
         <Panel title="Order progress" sub="Current production pipeline">
-          {[
-            ["New orders", 8, 42],
-            ["Cutting", 5, 30],
-            ["Stitching", 9, 63],
-            ["Trial", 4, 24],
-            ["Ready", 6, 38],
-          ].map((x, i) => (
-            <div className="bar" key={x[0]}>
-              <span>{x[0]}</span>
+          {data.progress.map((p, i) => (
+            <div className="bar" key={p.status}>
+              <span>{p.status}</span>
               <div>
-                <i style={{ width: x[2] + "%" }} className={"b" + i} />
+                <i style={{ width: (p.count / maxProgress) * 100 + "%" }} className={"b" + i} />
               </div>
-              <b>{x[1]}</b>
+              <b>{p.count}</b>
             </div>
           ))}
         </Panel>
-        <Panel title="Quick actions" sub="Common studio tasks">
-          <div className="quick">
-            {[
-              ["＋", "New order"],
-              ["♙", "Add customer"],
-              ["◷", "Book fitting"],
-              ["✉", "Send update"],
-            ].map((x) => (
-              <button key={x[1]}>
-                <span>{x[0]}</span>
-                {x[1]}
-              </button>
-            ))}
-          </div>
-        </Panel>
       </div>
+      <Panel title="Quick actions" sub="Common studio tasks">
+        <div className="quick">
+          <button onClick={() => go("Orders")}>
+            <span>＋</span>New order
+          </button>
+          <button onClick={() => go("Customers")}>
+            <span>♙</span>Add customer
+          </button>
+        </div>
+      </Panel>
     </>
   );
 }
@@ -985,6 +977,259 @@ function OrderTable({ orders, advance }) {
     </div>
   );
 }
+function Payments() {
+  const [data, setData] = useState(null),
+    [error, setError] = useState(""),
+    [range, setRange] = useState({ from: "", to: "" }),
+    token = sessionStorage.getItem("zivara-admin-token");
+  useEffect(() => {
+    const params = new URLSearchParams();
+    if (range.from) params.set("from", range.from);
+    if (range.to) params.set("to", range.to);
+    fetch(`/api/payments/summary?${params}`, { headers: { Authorization: `Bearer ${token}` } })
+      .then((r) => r.json())
+      .then((body) => {
+        if (!body.success) throw Error(body.message);
+        setData(body.data);
+      })
+      .catch((e) => setError(e.message || "Failed to load payments"));
+  }, [range.from, range.to]); // eslint-disable-line react-hooks/exhaustive-deps
+  const money = (n) => `₹${Number(n || 0).toLocaleString("en-IN")}`;
+  if (error)
+    return (
+      <div className="crud-error">
+        ⚠ {error}
+      </div>
+    );
+  return (
+    <>
+      <section className="payments-filter">
+        <label>
+          <small>Due date from</small>
+          <input type="date" value={range.from} onChange={(e) => setRange({ ...range, from: e.target.value })} />
+        </label>
+        <label>
+          <small>Due date to</small>
+          <input type="date" value={range.to} onChange={(e) => setRange({ ...range, to: e.target.value })} />
+        </label>
+        {(range.from || range.to) && (
+          <button type="button" onClick={() => setRange({ from: "", to: "" })}>
+            Clear filter
+          </button>
+        )}
+      </section>
+      {!data ? (
+        <div className="crud-loading"><span /><p>Loading payments…</p></div>
+      ) : (
+        <>
+          <section className="metrics">
+            <article>
+              <span>◇</span>
+              <small>Total order value</small>
+              <strong>{money(data.totalAmount)}</strong>
+            </article>
+            <article>
+              <span>↗</span>
+              <small>Collected</small>
+              <strong>{money(data.totalCollected)}</strong>
+            </article>
+            <article>
+              <span>✉</span>
+              <small>Pending dues</small>
+              <strong>{money(data.totalPending)}</strong>
+            </article>
+          </section>
+          <Panel title="Orders with dues" sub="Sorted by due date, soonest first">
+        {data.orders.length ? (
+          <div className="table-wrap">
+            <table>
+              <thead>
+                <tr>
+                  <th>ORDER</th>
+                  <th>CUSTOMER</th>
+                  <th>GARMENT</th>
+                  <th>DUE DATE</th>
+                  <th>AMOUNT</th>
+                  <th>ADVANCE</th>
+                  <th>DUE</th>
+                  <th>STATUS</th>
+                </tr>
+              </thead>
+              <tbody>
+                {data.orders.map((o) => (
+                  <tr key={o.orderNumber}>
+                    <td><b>{o.orderNumber}</b></td>
+                    <td>{o.customer}</td>
+                    <td>{o.garment}</td>
+                    <td>{o.dueDate ? new Date(o.dueDate).toLocaleDateString("en-IN") : "—"}</td>
+                    <td>{money(o.amount)}</td>
+                    <td>{money(o.advancePaid)}</td>
+                    <td><b>{money(o.due)}</b></td>
+                    <td>
+                      <span className="data-status">{o.paymentStatus}</span>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        ) : (
+          <div className="empty">
+            <span>✦</span>
+            <h3>No pending dues</h3>
+            <p>Every active order is fully paid.</p>
+          </div>
+        )}
+          </Panel>
+        </>
+      )}
+    </>
+  );
+}
+function Settings() {
+  const token = sessionStorage.getItem("zivara-admin-token"),
+    [form, setForm] = useState({ address: "", phone: "", hours: "" }),
+    [loading, setLoading] = useState(true),
+    [saving, setSaving] = useState(false),
+    [toast, setToast] = useState(""),
+    [error, setError] = useState(""),
+    [pw, setPw] = useState({ currentPassword: "", newPassword: "", confirm: "" }),
+    [pwSaving, setPwSaving] = useState(false),
+    [pwError, setPwError] = useState(""),
+    [pwModalOpen, setPwModalOpen] = useState(false);
+  useEffect(() => {
+    fetch("/api/settings")
+      .then((r) => r.json())
+      .then((body) => body.success && setForm(body.data))
+      .finally(() => setLoading(false));
+  }, []);
+  useEffect(() => {
+    if (!toast) return;
+    const t = setTimeout(() => setToast(""), 2400);
+    return () => clearTimeout(t);
+  }, [toast]);
+  const saveInfo = async (e) => {
+    e.preventDefault();
+    setSaving(true);
+    setError("");
+    try {
+      const r = await fetch("/api/settings", {
+        method: "PUT",
+        headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },
+        body: JSON.stringify(form),
+      });
+      const body = await r.json();
+      if (!r.ok) throw Error(body.message);
+      setToast("Business info updated");
+    } catch (e) {
+      setError(e.message);
+    } finally {
+      setSaving(false);
+    }
+  };
+  const changePassword = async (e) => {
+    e.preventDefault();
+    setPwError("");
+    if (pw.newPassword !== pw.confirm) return setPwError("New passwords don't match");
+    setPwSaving(true);
+    try {
+      const r = await fetch("/api/settings/password", {
+        method: "PUT",
+        headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },
+        body: JSON.stringify(pw),
+      });
+      const body = await r.json();
+      if (!r.ok) throw Error(body.message);
+      setPw({ currentPassword: "", newPassword: "", confirm: "" });
+      setPwModalOpen(false);
+      setToast("Password updated");
+    } catch (e) {
+      setPwError(e.message);
+    } finally {
+      setPwSaving(false);
+    }
+  };
+  if (loading) return <div className="crud-loading"><span /><p>Loading settings…</p></div>;
+  return (
+    <>
+      <form onSubmit={saveInfo}>
+        <FormGroup title="Business info" description="Shown on the public store's Contact section">
+          <label>
+            <FieldLabel label="Shop address" />
+            <input value={form.address} onChange={(e) => setForm({ ...form, address: e.target.value })} />
+          </label>
+          <label>
+            <FieldLabel label="Phone" />
+            <input value={form.phone} onChange={(e) => setForm({ ...form, phone: e.target.value })} />
+          </label>
+          <label>
+            <FieldLabel label="Shop hours" />
+            <input value={form.hours} onChange={(e) => setForm({ ...form, hours: e.target.value })} />
+          </label>
+        </FormGroup>
+        {error && (
+          <div className="crud-error">
+            ⚠ {error}
+          </div>
+        )}
+        <button className="primary" disabled={saving}>
+          {saving ? "Saving…" : "Save business info"}
+        </button>
+      </form>
+      <section className="panel">
+        <div className="panel-head">
+          <div>
+            <h3>Change password</h3>
+            <p>Used to sign in to this admin dashboard</p>
+          </div>
+          <button className="primary" onClick={() => setPwModalOpen(true)}>
+            Change password
+          </button>
+        </div>
+      </section>
+      {pwModalOpen &&
+        createPortal(
+          <div className="mini-modal-backdrop" onMouseDown={(e) => e.target === e.currentTarget && setPwModalOpen(false)}>
+            <form className="mini-modal" onSubmit={changePassword}>
+              <div className="mini-modal-head">
+                <h3>Change password</h3>
+                <button type="button" onClick={() => setPwModalOpen(false)}>×</button>
+              </div>
+              <div className="group-fields">
+                <label>
+                  <FieldLabel label="Current password" />
+                  <input type="password" value={pw.currentPassword} onChange={(e) => setPw({ ...pw, currentPassword: e.target.value })} required />
+                </label>
+                <label>
+                  <FieldLabel label="New password" />
+                  <input type="password" value={pw.newPassword} onChange={(e) => setPw({ ...pw, newPassword: e.target.value })} required minLength={6} />
+                </label>
+                <label>
+                  <FieldLabel label="Confirm new password" />
+                  <input type="password" value={pw.confirm} onChange={(e) => setPw({ ...pw, confirm: e.target.value })} required minLength={6} />
+                </label>
+              </div>
+              {pwError && (
+                <div className="crud-error">
+                  ⚠ {pwError}
+                </div>
+              )}
+              <div className="mini-modal-foot">
+                <button type="button" onClick={() => setPwModalOpen(false)}>
+                  Cancel
+                </button>
+                <button className="primary" disabled={pwSaving}>
+                  {pwSaving ? "Updating…" : "Update password"}
+                </button>
+              </div>
+            </form>
+          </div>,
+          document.body,
+        )}
+      {toast && <div className="crud-toast">✓ {toast}</div>}
+    </>
+  );
+}
 const measurements = [
   "size",
   "bust",
@@ -1009,6 +1254,7 @@ const configs = {
       ["email", "Email"],
       ["measurements.size", "Size"],
       ["totalOrders", "Orders"],
+      ["createdAt", "Joined"],
     ],
     fields: [
       ["name", "Full name", "text", true],
@@ -1080,22 +1326,18 @@ const configs = {
         ["Pending", "Partial", "Paid"],
       ],
       ["designNotes", "Design notes", "textarea"],
-      ...measurements
-        .slice(1)
-        .map((x) => [
-          `measurements.${x}`,
-          x.replace(/([A-Z])/g, " $1"),
-          "number",
-        ]),
+      ["alterationNotes", "Alteration notes", "textarea"],
     ],
   },
   Enquiries: {
     endpoint: "enquiries",
+    extraQuery: "serviceNot=Feedback",
     title: "Enquiry",
     columns: [
       ["name", "Customer"],
       ["phone", "Phone"],
       ["service", "Service"],
+      ["createdAt", "Received"],
       ["preferredDate", "Preferred"],
       ["source", "Source"],
       ["status", "Status"],
@@ -1190,6 +1432,24 @@ const configs = {
       ["description", "Description", "textarea"],
     ],
   },
+  Feedback: {
+    endpoint: "enquiries",
+    extraQuery: "service=Feedback",
+    title: "Feedback",
+    defaultForm: { service: "Feedback" },
+    columns: [
+      ["name", "Customer"],
+      ["phone", "Phone"],
+      ["rating", "Rating"],
+      ["message", "Notes"],
+      ["createdAt", "Received"],
+    ],
+    fields: [
+      ["name", "Name", "text", true],
+      ["phone", "Phone", "tel", true],
+      ["message", "Notes", "textarea", true],
+    ],
+  },
 };
 const getPath = (obj, path) =>
   path.split(".").reduce((value, key) => value?.[key], obj);
@@ -1221,6 +1481,7 @@ function Manager({ name, search }) {
     [loading, setLoading] = useState(true),
     [error, setError] = useState(""),
     [deleted, setDeleted] = useState(false),
+    [dateRange, setDateRange] = useState({ from: "", to: "" }),
     [modal, setModal] = useState(null),
     [form, setForm] = useState({}),
     [saving, setSaving] = useState(false),
@@ -1228,6 +1489,10 @@ function Manager({ name, search }) {
     [customers, setCustomers] = useState([]),
     [toast, setToast] = useState(""),
     token = sessionStorage.getItem("zivara-admin-token");
+  const waLink = (phone) => {
+    const digits = (phone || "").replace(/\D/g, "");
+    return `https://wa.me/${digits.length === 10 ? "91" + digits : digits}`;
+  };
   const request = async (path, options = {}) => {
     const response = await fetch(`/api/${path}`, {
         ...options,
@@ -1246,7 +1511,7 @@ function Manager({ name, search }) {
     setError("");
     try {
       const body = await request(
-        `${config.endpoint}?deleted=${deleted}&search=${encodeURIComponent(search)}`,
+        `${config.endpoint}?deleted=${deleted}&search=${encodeURIComponent(search)}${config.extraQuery ? `&${config.extraQuery}` : ""}${dateRange.from ? `&from=${dateRange.from}` : ""}${dateRange.to ? `&to=${dateRange.to}` : ""}`,
       );
       setRows(body.data);
     } catch (e) {
@@ -1258,7 +1523,7 @@ function Manager({ name, search }) {
   useEffect(() => {
     const timer = setTimeout(load, 250);
     return () => clearTimeout(timer);
-  }, [name, search, deleted]); // eslint-disable-line react-hooks/exhaustive-deps
+  }, [name, search, deleted, dateRange.from, dateRange.to]); // eslint-disable-line react-hooks/exhaustive-deps
   useEffect(() => {
     if (name === "Orders")
       request("customers?limit=100")
@@ -1266,7 +1531,7 @@ function Manager({ name, search }) {
         .catch(() => {});
   }, [name]); // eslint-disable-line react-hooks/exhaustive-deps
   const openCreate = () => {
-      setForm({});
+      setForm(config.defaultForm || {});
       setModal("create");
     },
     openEdit = (row) => {
@@ -1289,6 +1554,28 @@ function Manager({ name, search }) {
       if (!response.ok) throw Error(body.message || "Image upload failed");
       setForm((current) => ({ ...current, imageUrl: body.imageUrl }));
       setToast("Design image uploaded");
+    } catch (e) {
+      setError(e.message);
+    } finally {
+      setUploading(false);
+    }
+  };
+  const uploadCustomerPhoto = async (file) => {
+    if (!file) return;
+    setUploading(true);
+    setError("");
+    try {
+      const data = new FormData();
+      data.append("image", file);
+      const response = await fetch("/api/customers/upload", {
+        method: "POST",
+        headers: { Authorization: `Bearer ${token}` },
+        body: data,
+      });
+      const body = await response.json();
+      if (!response.ok) throw Error(body.message || "Photo upload failed");
+      setForm((current) => ({ ...current, measurementPhotoUrl: body.imageUrl }));
+      setToast("Photo uploaded");
     } catch (e) {
       setError(e.message);
     } finally {
@@ -1366,6 +1653,7 @@ function Manager({ name, search }) {
       "status",
       "paymentStatus",
       "designNotes",
+      "alterationNotes",
     ],
     commercialFields = mainFields.filter((f) => commercialKeys.includes(f[0])),
     detailFields = mainFields.filter((f) => !commercialKeys.includes(f[0]));
@@ -1376,7 +1664,7 @@ function Manager({ name, search }) {
         field={field}
         value={getPath(form, field[0])}
         customers={customers}
-        change={(value) => setForm(setPath(form, field[0], value))}
+        change={(value) => setForm((current) => setPath(current, field[0], value))}
       />
     ));
   return (
@@ -1409,6 +1697,31 @@ function Manager({ name, search }) {
           )}
         </div>
       </div>
+      {(name === "Customers" || name === "Orders") && (
+        <section className="payments-filter">
+          <label>
+            <small>Created from</small>
+            <input
+              type="date"
+              value={dateRange.from}
+              onChange={(e) => setDateRange({ ...dateRange, from: e.target.value })}
+            />
+          </label>
+          <label>
+            <small>Created to</small>
+            <input
+              type="date"
+              value={dateRange.to}
+              onChange={(e) => setDateRange({ ...dateRange, to: e.target.value })}
+            />
+          </label>
+          {(dateRange.from || dateRange.to) && (
+            <button type="button" onClick={() => setDateRange({ from: "", to: "" })}>
+              Clear filter
+            </button>
+          )}
+        </section>
+      )}
       {error && (
         <div className="crud-error">
           ⚠ {error}
@@ -1433,12 +1746,25 @@ function Manager({ name, search }) {
             </thead>
             <tbody>
               {rows.map((row) => (
-                <tr key={row._id}>
+                <tr
+                  key={row._id}
+                  className={
+                    name === "Enquiries" && row.status === "New" ? "unseen" : ""
+                  }
+                >
                   {config.columns.map((c) => (
                     <td key={c[0]}>
-                      <span className={c[0] === "status" ? "data-status" : ""}>
-                        {pretty(getPath(row, c[0]))}
-                      </span>
+                      {c[0] === "rating" ? (
+                        <span className="rating-stars-display">
+                          {getPath(row, c[0])
+                            ? "★".repeat(getPath(row, c[0])) + "☆".repeat(5 - getPath(row, c[0]))
+                            : "—"}
+                        </span>
+                      ) : (
+                        <span className={c[0] === "status" ? "data-status" : ""}>
+                          {pretty(getPath(row, c[0]))}
+                        </span>
+                      )}
                     </td>
                   ))}
                   <td>
@@ -1447,6 +1773,25 @@ function Manager({ name, search }) {
                         <button onClick={() => restore(row)}>↻ Restore</button>
                       ) : (
                         <>
+                          {name === "Enquiries" && row.phone && (
+                            <a
+                              className="whatsapp-action"
+                              href={waLink(row.phone)}
+                              target="_blank"
+                              rel="noreferrer"
+                              onClick={() => {
+                                if (row.status === "New")
+                                  request(`enquiries/${row._id}`, {
+                                    method: "PUT",
+                                    body: JSON.stringify({ status: "Contacted" }),
+                                  })
+                                    .then(load)
+                                    .catch(() => {});
+                              }}
+                            >
+                              ◉ WhatsApp
+                            </a>
+                          )}
                           <button onClick={() => openEdit(row)}>✎ Edit</button>
                           <button
                             className="danger"
@@ -1479,7 +1824,7 @@ function Manager({ name, search }) {
           )}
         </div>
       )}
-      {modal && (
+      {modal && createPortal(
         <div
           className="modal-backdrop"
           onMouseDown={(e) => e.target === e.currentTarget && setModal(null)}
@@ -1506,53 +1851,6 @@ function Manager({ name, search }) {
               </button>
             </div>
             <div className="modal-body">
-              <aside className="modal-guide">
-                <div className="guide-art">
-                  <span>
-                    {name === "Orders"
-                      ? "◇"
-                      : name === "Customers"
-                        ? "♙"
-                        : name === "Appointments"
-                          ? "◷"
-                          : "✦"}
-                  </span>
-                </div>
-                <small>ZIVARA STUDIO</small>
-                <h4>{config.title} details</h4>
-                <p>
-                  Complete the information carefully. You can edit this record
-                  anytime.
-                </p>
-                <div className="guide-steps">
-                  <span className="active">
-                    <i>1</i>Basic details
-                  </span>
-                  {commercialFields.length > 0 && (
-                    <span>
-                      <i>2</i>Order & payment
-                    </span>
-                  )}
-                  {measurementFields.length > 0 && (
-                    <span>
-                      <i>{commercialFields.length ? 3 : 2}</i>Measurements
-                    </span>
-                  )}
-                </div>
-                {name === "Orders" && (
-                  <div className="order-balance">
-                    <small>BALANCE DUE</small>
-                    <b>
-                      ₹
-                      {Math.max(
-                        (Number(form.amount) || 0) -
-                          (Number(form.advancePaid) || 0),
-                        0,
-                      ).toLocaleString("en-IN")}
-                    </b>
-                  </div>
-                )}
-              </aside>
               <div className="form-scroll">
                 {name === "Designs" && (
                   <section className="design-upload-panel">
@@ -1595,8 +1893,16 @@ function Manager({ name, search }) {
                 {measurementFields.length > 0 && (
                   <FormGroup
                     title="Body measurements"
-                    description="All measurements are recorded in inches"
+                    description="All measurements are optional — fill what you have, or upload a photo instead"
                     measurement
+                    headerExtra={
+                      name === "Customers" && (
+                        <label className="design-upload-button compact">
+                          {uploading ? "Optimizing…" : form.measurementPhotoUrl ? "Replace photo" : "Upload photo"}
+                          <input type="file" accept="image/jpeg,image/png,image/webp" disabled={uploading} onChange={(e) => uploadCustomerPhoto(e.target.files?.[0])} />
+                        </label>
+                      )
+                    }
                   >
                     {renderFields(measurementFields)}
                   </FormGroup>
@@ -1621,13 +1927,14 @@ function Manager({ name, search }) {
               </div>
             </div>
           </form>
-        </div>
+        </div>,
+        document.body,
       )}
       {toast && <div className="crud-toast">✓ {toast}</div>}
     </section>
   );
 }
-function FormGroup({ title, description, children, measurement = false }) {
+function FormGroup({ title, description, children, measurement = false, headerExtra }) {
   return (
     <section
       className={"form-group " + (measurement ? "measurement-group" : "")}
@@ -1637,7 +1944,7 @@ function FormGroup({ title, description, children, measurement = false }) {
           <h4>{title}</h4>
           <p>{description}</p>
         </div>
-        {measurement && <span>UNIT · INCHES</span>}
+        {headerExtra || (measurement && <span>UNIT · INCHES</span>)}
       </header>
       <div className="group-fields">{children}</div>
     </section>
@@ -1646,7 +1953,9 @@ function FormGroup({ title, description, children, measurement = false }) {
 function CrudField({ field, value, change, customers }) {
   const [key, label, type, options] = field,
     required = field[3] === true,
-    placeholder = type === "number" ? "0.0" : `Enter ${label.toLowerCase()}`;
+    placeholder = type === "number" ? "0.0" : `Enter ${label.toLowerCase()}`,
+    [customerSearch, setCustomerSearch] = useState(""),
+    [comboOpen, setComboOpen] = useState(false);
   if (type === "textarea")
     return (
       <label className="wide">
@@ -1673,11 +1982,54 @@ function CrudField({ field, value, change, customers }) {
         </span>
       </label>
     );
-  if (type === "select" || type === "customer") {
-    const items =
-      type === "customer"
-        ? customers.map((c) => [c._id, `${c.name} · ${c.phone}`])
-        : options.map((x) => [x, x]);
+  if (type === "customer") {
+    const items = customers.map((c) => [c._id, `${c.name} · ${c.phone}`]),
+      selectedId = value?._id || value || "",
+      selectedLabel = items.find((x) => x[0] === selectedId)?.[1] || "",
+      displayValue = comboOpen ? customerSearch : selectedLabel,
+      filtered = customerSearch
+        ? items.filter((x) =>
+            x[1].toLowerCase().includes(customerSearch.toLowerCase()),
+          )
+        : items;
+    return (
+      <label className="combo-field">
+        <FieldLabel label={label} required={required} />
+        <input
+          type="text"
+          placeholder="Search customer by name or phone…"
+          value={displayValue}
+          onFocus={() => {
+            setCustomerSearch("");
+            setComboOpen(true);
+          }}
+          onChange={(e) => setCustomerSearch(e.target.value)}
+          onBlur={() => setTimeout(() => setComboOpen(false), 150)}
+        />
+        {comboOpen && (
+          <div className="combo-options">
+            {filtered.length === 0 && (
+              <div className="combo-empty">No customers found</div>
+            )}
+            {filtered.map((x) => (
+              <div
+                className="combo-option"
+                key={x[0]}
+                onMouseDown={() => {
+                  change(x[0]);
+                  setComboOpen(false);
+                }}
+              >
+                {x[1]}
+              </div>
+            ))}
+          </div>
+        )}
+      </label>
+    );
+  }
+  if (type === "select") {
+    const items = options.map((x) => [x, x]);
     return (
       <label>
         <FieldLabel label={label} required={required} />

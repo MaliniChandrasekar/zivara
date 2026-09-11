@@ -9,6 +9,7 @@ const enquirySchema = new mongoose.Schema({
   city: { type: String, trim: true },
   budget: { type: String, trim: true },
   referenceImageName: { type: String, trim: true },
+  rating: { type: Number, min: 1, max: 5 },
   message: { type: String, trim: true },
   status: { type: String, enum: ['New', 'Contacted', 'Converted', 'Closed'], default: 'New' },
   source: { type: String, default: 'Website' },

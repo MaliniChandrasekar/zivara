@@ -8,7 +8,7 @@ const orderSchema = new mongoose.Schema({
   quantity: { type: Number, min: 1, default: 1 },
   fabric: String,
   color: String,
-  measurements: { bust: Number, underBust: Number, waist: Number, hip: Number, shoulder: Number, armhole: Number, neckFront: Number, neckBack: Number, length: Number, sleeve: Number, sleeveRound: Number, unit: { type: String, default: 'in' } },
+  alterationNotes: String,
   dueDate: { type: Date, required: true },
   amount: { type: Number, min: 0, default: 0 },
   advancePaid: { type: Number, min: 0, default: 0 },
